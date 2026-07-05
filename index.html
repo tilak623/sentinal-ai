@@ -1,1711 +1,927 @@
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SentinelAI – Industrial Safety Intelligence Platform</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<title>SentinelAI — Autonomous Industrial Safety Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
-
-  :root {
-    --bg: #050B16;
-    --card: #0A1628;
-    --card2: #0D1F3C;
-    --border: #1A3A5C;
-    --cyan: #00E5FF;
-    --green: #00FF99;
-    --amber: #FFC107;
-    --orange: #FF6A00;
-    --red: #FF1744;
-    --purple: #7C3AED;
-    --text: #E8F4FD;
-    --muted: #6B8FA8;
-    --glow-cyan: 0 0 15px rgba(0,229,255,0.4);
-    --glow-red: 0 0 15px rgba(255,23,68,0.5);
-    --glow-green: 0 0 15px rgba(0,255,153,0.4);
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* SCROLLBAR */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--card); }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  /* NAV */
-  nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    height: 56px;
-    background: rgba(10,22,40,0.97);
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    backdrop-filter: blur(12px);
-  }
-
-  .nav-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .logo-text {
-    font-family: 'Orbitron', monospace;
-    font-size: 20px;
-    font-weight: 900;
-    background: linear-gradient(90deg, var(--cyan), #0088FF);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: 2px;
-  }
-
-  .logo-sub {
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 1px;
-    line-height: 1.2;
-  }
-
-  .live-dot {
-    width: 8px;
-    height: 8px;
-    background: var(--green);
-    border-radius: 50%;
-    animation: pulse-dot 1.5s infinite;
-    box-shadow: 0 0 8px var(--green);
-  }
-
-  @keyframes pulse-dot {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.7); }
-  }
-
-  .nav-center {
-    text-align: center;
-  }
-
-  .nav-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--cyan);
-    letter-spacing: 3px;
-  }
-
-  .nav-tagline {
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 1px;
-  }
-
-  .nav-right {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .nav-time {
-    text-align: right;
-  }
-
-  .time-val {
-    font-family: 'Orbitron', monospace;
-    font-size: 16px;
-    color: var(--cyan);
-    font-weight: 700;
-  }
-
-  .date-val {
-    font-size: 11px;
-    color: var(--muted);
-  }
-
-  .nav-icon {
-    width: 34px;
-    height: 34px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--card2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    position: relative;
-    font-size: 16px;
-    color: var(--text);
-    transition: border-color 0.2s;
-  }
-
-  .nav-icon:hover { border-color: var(--cyan); }
-
-  .badge {
-    position: absolute;
-    top: -4px;
-    right: -4px;
-    width: 16px;
-    height: 16px;
-    background: var(--red);
-    border-radius: 50%;
-    font-size: 9px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-  }
-
-  .avatar {
-    width: 34px;
-    height: 34px;
-    border-radius: 8px;
-    background: linear-gradient(135deg, var(--cyan), #0055AA);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-
-  /* LAYOUT */
-  .layout {
-    display: flex;
-    height: calc(100vh - 56px);
-    overflow: hidden;
-  }
-
-  /* SIDEBAR */
-  sidebar {
-    width: 200px;
-    min-width: 200px;
-    background: var(--card);
-    border-right: 1px solid var(--border);
-    overflow-y: auto;
-    padding: 16px 0;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 9px 16px;
-    cursor: pointer;
-    border-left: 2px solid transparent;
-    font-size: 12.5px;
-    color: var(--muted);
-    transition: all 0.2s;
-    margin: 1px 0;
-  }
-
-  .nav-item:hover, .nav-item.active {
-    color: var(--cyan);
-    background: rgba(0,229,255,0.06);
-    border-left-color: var(--cyan);
-  }
-
-  .nav-item.active { color: var(--cyan); }
-
-  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
-
-  .nav-section {
-    padding: 12px 16px 4px;
-    font-size: 9px;
-    font-weight: 700;
-    color: var(--muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-top: 8px;
-  }
-
-  .sys-status {
-    margin-top: auto;
-    padding: 12px 16px;
-    border-top: 1px solid var(--border);
-    font-size: 11px;
-  }
-
-  .sys-ok { color: var(--green); font-weight: 600; }
-
-  /* MAIN */
-  main {
-    flex: 1;
-    overflow-y: auto;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  /* STAT CARDS ROW */
-  .stats-row {
-    display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    gap: 10px;
-  }
-
-  .stat-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 12px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent-color, var(--cyan)), transparent);
-  }
-
-  .stat-label {
-    font-size: 9px;
-    color: var(--muted);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-  }
-
-  .stat-value {
-    font-family: 'Orbitron', monospace;
-    font-size: 20px;
-    font-weight: 700;
-    line-height: 1;
-  }
-
-  .stat-sub {
-    font-size: 10px;
-    color: var(--muted);
-    margin-top: 3px;
-  }
-
-  .stat-icon {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 18px;
-    opacity: 0.5;
-  }
-
-  /* MIDDLE ROW */
-  .middle-row {
-    display: grid;
-    grid-template-columns: 1fr 280px 200px;
-    gap: 14px;
-    flex: 1;
-    min-height: 0;
-  }
-
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
-  .card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--border);
-    background: var(--card2);
-  }
-
-  .card-title {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--cyan);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-
-  .card-action {
-    font-size: 10px;
-    color: var(--muted);
-    cursor: pointer;
-    padding: 3px 8px;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    background: transparent;
-    color: var(--muted);
-    transition: all 0.2s;
-  }
-
-  .card-action:hover { border-color: var(--cyan); color: var(--cyan); }
-
-  /* FACTORY MAP */
-  .factory-map {
-    padding: 12px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 10px;
-    height: calc(100% - 48px);
-  }
-
-  .zone-card {
-    border-radius: 10px;
-    overflow: hidden;
-    position: relative;
-    cursor: pointer;
-    border: 1px solid var(--border);
-    transition: transform 0.2s, border-color 0.2s;
-  }
-
-  .zone-card:hover { transform: scale(1.01); }
-
-  .zone-bg {
-    position: absolute;
-    inset: 0;
-    object-fit: cover;
-    opacity: 0.35;
-  }
-
-  .zone-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 10px;
-    background: linear-gradient(135deg, rgba(5,11,22,0.7) 0%, rgba(5,11,22,0.3) 100%);
-  }
-
-  .zone-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-  }
-
-  .zone-name {
-    font-family: 'Orbitron', monospace;
-    font-size: 13px;
-    font-weight: 700;
-    color: #fff;
-  }
-
-  .zone-desc {
-    font-size: 10px;
-    color: rgba(255,255,255,0.6);
-    margin-top: 2px;
-  }
-
-  .zone-badge {
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1px;
-  }
-
-  .badge-safe { background: rgba(0,255,153,0.2); color: var(--green); border: 1px solid rgba(0,255,153,0.4); }
-  .badge-moderate { background: rgba(255,193,7,0.2); color: var(--amber); border: 1px solid rgba(255,193,7,0.4); }
-  .badge-high { background: rgba(255,106,0,0.2); color: var(--orange); border: 1px solid rgba(255,106,0,0.4); }
-  .badge-critical { background: rgba(255,23,68,0.2); color: var(--red); border: 1px solid rgba(255,23,68,0.4); animation: flash-border 1s infinite; }
-
-  @keyframes flash-border {
-    0%, 100% { border-color: rgba(255,23,68,0.4); }
-    50% { border-color: rgba(255,23,68,0.9); box-shadow: 0 0 10px rgba(255,23,68,0.3); }
-  }
-
-  .zone-stats {
-    display: flex;
-    gap: 12px;
-    font-size: 10px;
-    color: rgba(255,255,255,0.7);
-  }
-
-  .zone-stat { display: flex; align-items: center; gap: 4px; }
-
-  .zone-risk {
-    font-family: 'Orbitron', monospace;
-    font-size: 22px;
-    font-weight: 900;
-    line-height: 1;
-  }
-
-  .view-btn {
-    background: rgba(0,229,255,0.1);
-    border: 1px solid rgba(0,229,255,0.3);
-    color: var(--cyan);
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 10px;
-    cursor: pointer;
-    font-family: 'Inter', sans-serif;
-    transition: all 0.2s;
-  }
-
-  .view-btn:hover { background: rgba(0,229,255,0.2); }
-
-  /* SENSOR FEED */
-  .sensor-list {
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    overflow-y: auto;
-    height: calc(100% - 48px);
-  }
-
-  .sensor-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 10px;
-    background: var(--card2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-  }
-
-  .sensor-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    flex-shrink: 0;
-  }
-
-  .sensor-info { flex: 1; }
-
-  .sensor-name {
-    font-size: 10px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .sensor-value {
-    font-family: 'Orbitron', monospace;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--text);
-  }
-
-  .sensor-status {
-    font-size: 10px;
-    padding: 2px 7px;
-    border-radius: 3px;
-    font-weight: 600;
-  }
-
-  .status-normal { background: rgba(0,255,153,0.1); color: var(--green); }
-  .status-warning { background: rgba(255,193,7,0.1); color: var(--amber); }
-  .status-danger { background: rgba(255,23,68,0.1); color: var(--red); animation: flash 1s infinite; }
-
-  @keyframes flash { 50% { opacity: 0.5; } }
-
-  /* EMERGENCY PANEL */
-  .emergency-panel {
-    height: calc(100% - 48px);
-    overflow-y: auto;
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .emg-btn {
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    font-family: 'Inter', sans-serif;
-    font-weight: 600;
-    font-size: 11px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s;
-    text-align: left;
-  }
-
-  .emg-btn:hover { transform: translateY(-1px); filter: brightness(1.2); }
-  .emg-btn:active { transform: scale(0.98); }
-
-  .emg-voice { background: rgba(0,229,255,0.15); border: 1px solid rgba(0,229,255,0.4); color: var(--cyan); }
-  .emg-alert { background: rgba(255,193,7,0.15); border: 1px solid rgba(255,193,7,0.4); color: var(--amber); }
-  .emg-ambu { background: rgba(0,136,255,0.15); border: 1px solid rgba(0,136,255,0.4); color: #0088FF; }
-  .emg-fire { background: rgba(255,106,0,0.15); border: 1px solid rgba(255,106,0,0.4); color: var(--orange); }
-  .emg-safety { background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.4); color: #A78BFA; }
-  .emg-siren { background: rgba(255,23,68,0.15); border: 1px solid rgba(255,23,68,0.4); color: var(--red); }
-  .emg-shutdown { background: rgba(255,23,68,0.25); border: 1px solid var(--red); color: var(--red); font-size: 12px; padding: 12px; }
-
-  /* ALERT BOX */
-  .alert-box {
-    background: rgba(255,23,68,0.08);
-    border: 1px solid rgba(255,23,68,0.4);
-    border-radius: 8px;
-    padding: 10px 12px;
-    animation: alert-pulse 2s infinite;
-  }
-
-  @keyframes alert-pulse {
-    0%, 100% { border-color: rgba(255,23,68,0.4); }
-    50% { border-color: rgba(255,23,68,0.8); box-shadow: 0 0 15px rgba(255,23,68,0.2); }
-  }
-
-  .alert-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-
-  .alert-title { font-size: 11px; font-weight: 700; color: var(--red); text-transform: uppercase; letter-spacing: 1px; }
-
-  .alert-detail {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4px;
-    font-size: 10px;
-  }
-
-  .alert-key { color: var(--muted); }
-  .alert-val { color: var(--text); font-weight: 600; }
-
-  /* BOTTOM ROW */
-  .bottom-row {
-    display: grid;
-    grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr;
-    gap: 14px;
-  }
-
-  /* CHART */
-  .chart-area {
-    padding: 10px;
-    height: 140px;
-    position: relative;
-  }
-
-  /* TIMELINE */
-  .timeline {
-    padding: 8px 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    max-height: 200px;
-    overflow-y: auto;
-  }
-
-  .tl-item {
-    display: flex;
-    gap: 8px;
-    align-items: flex-start;
-    font-size: 11px;
-  }
-
-  .tl-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    margin-top: 3px;
-  }
-
-  .tl-time { color: var(--muted); min-width: 40px; }
-  .tl-event { color: var(--text); }
-
-  /* WORKER STATUS */
-  .worker-donut-wrap {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px;
-  }
-
-  .worker-legend {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    font-size: 11px;
-  }
-
-  .legend-item { display: flex; align-items: center; gap: 6px; }
-  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-
-  /* MACHINE HEALTH */
-  .machine-list {
-    padding: 8px 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  .machine-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 11px;
-    padding: 4px 0;
-    border-bottom: 1px solid rgba(26,58,92,0.5);
-  }
-
-  .mach-bar-wrap { width: 60px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
-  .mach-bar { height: 100%; border-radius: 2px; }
-
-  /* BOTTOM SECTIONS */
-  .mini-sections {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 14px;
-  }
-
-  .mini-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    overflow: hidden;
-  }
-
-  .mini-body {
-    padding: 8px 12px;
-    font-size: 11px;
-  }
-
-  .worker-alert-item {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    padding: 5px 0;
-    border-bottom: 1px solid rgba(26,58,92,0.4);
-    font-size: 11px;
-  }
-
-  .avatar-sm {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 9px;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-
-  .sent-badge {
-    font-size: 9px;
-    padding: 1px 5px;
-    border-radius: 3px;
-    background: rgba(0,255,153,0.1);
-    color: var(--green);
-    margin-left: auto;
-  }
-
-  .ambu-info { padding: 8px 12px; font-size: 11px; }
-  .ambu-info div { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid rgba(26,58,92,0.3); }
-  .ambu-info span:first-child { color: var(--muted); }
-
-  .siren-display {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-    gap: 5px;
-  }
-
-  .siren-anim {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: radial-gradient(circle, #FF1744, #AA0022);
-    animation: siren-pulse 0.5s infinite alternate;
-    box-shadow: 0 0 20px rgba(255,23,68,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-  }
-
-  @keyframes siren-pulse {
-    from { box-shadow: 0 0 15px rgba(255,23,68,0.4); }
-    to { box-shadow: 0 0 35px rgba(255,23,68,0.8), 0 0 60px rgba(255,23,68,0.3); }
-  }
-
-  .evac-map {
-    padding: 8px;
-    position: relative;
-    height: 120px;
-    background: rgba(0,10,25,0.5);
-    border-radius: 6px;
-    margin: 8px;
-    border: 1px solid var(--border);
-  }
-
-  /* WAVEFORM */
-  .waveform {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    height: 24px;
-    padding: 4px 0;
-  }
-
-  .wave-bar {
-    width: 3px;
-    background: var(--green);
-    border-radius: 2px;
-    animation: wave-anim 0.4s infinite alternate;
-  }
-
-  @keyframes wave-anim {
-    from { height: 4px; }
-    to { height: 20px; }
-  }
-
-  /* CRITICAL FOOTER */
-  .critical-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 30px;
-    background: rgba(255,23,68,0.15);
-    border-top: 1px solid rgba(255,23,68,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 16px;
-    font-size: 10px;
-    z-index: 99;
-  }
-
-  .ticker {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex: 1;
-    overflow: hidden;
-  }
-
-  .ticker-label {
-    background: var(--red);
-    color: #fff;
-    padding: 2px 8px;
-    border-radius: 3px;
-    font-weight: 700;
-    font-size: 9px;
-    letter-spacing: 1px;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  .ticker-text {
-    color: rgba(255,23,68,0.9);
-    white-space: nowrap;
-    animation: ticker-scroll 20s linear infinite;
-    letter-spacing: 0.5px;
-  }
-
-  @keyframes ticker-scroll {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
-
-  .footer-right {
-    color: var(--muted);
-    font-size: 10px;
-    display: flex;
-    gap: 16px;
-    flex-shrink: 0;
-  }
-
-  /* Zone color borders */
-  .zone-safe { border-color: rgba(0,255,153,0.4); }
-  .zone-critical { border-color: rgba(255,23,68,0.5); }
-  .zone-high { border-color: rgba(255,106,0,0.4); }
-  .zone-moderate { border-color: rgba(255,193,7,0.4); }
-
-  /* Radar scan effect */
-  .radar-wrap {
-    position: relative;
-    width: 40px;
-    height: 40px;
-    flex-shrink: 0;
-  }
-
-  .radar-circle {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 1px solid rgba(0,229,255,0.3);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .radar-scan {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    width: 50%;
-    height: 50%;
-    background: conic-gradient(from 0deg, rgba(0,229,255,0.5), transparent 60%);
-    transform-origin: 0% 100%;
-    animation: radar-spin 3s linear infinite;
-  }
-
-  @keyframes radar-spin { to { transform: rotate(360deg); } }
-
-  .nano {
-    font-size: 9px;
-    color: var(--muted);
-    letter-spacing: 0.5px;
-  }
-
-  .green { color: var(--green); }
-  .amber { color: var(--amber); }
-  .red { color: var(--red); }
-  .cyan { color: var(--cyan); }
-  .orange { color: var(--orange); }
-
-  .fw7 { font-weight: 700; }
-
-  /* AI Risk Gauge */
-  .gauge-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 5px 0;
-  }
+:root{
+  --bg:#050B16;
+  --bg2:#081020;
+  --panel:rgba(12,22,40,0.62);
+  --panel-solid:#0b1626;
+  --border:rgba(0,229,255,0.16);
+  --border-strong:rgba(0,229,255,0.4);
+  --cyan:#00E5FF;
+  --green:#00FF99;
+  --amber:#FFC107;
+  --orange:#FF6A00;
+  --red:#FF1744;
+  --text:#DCEAFB;
+  --text-dim:#7C93B3;
+  --text-faint:#4A6080;
+  --font-display:'Orbitron',sans-serif;
+  --font-body:'Chakra Petch',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:
+    radial-gradient(ellipse 1200px 700px at 15% -10%, rgba(0,229,255,0.08), transparent 60%),
+    radial-gradient(ellipse 1000px 800px at 100% 10%, rgba(0,255,153,0.05), transparent 55%),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+body::before{
+  content:'';
+  position:fixed; inset:0;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,0.035) 1px, transparent 1px);
+  background-size:42px 42px;
+  pointer-events:none;
+  z-index:0;
+  mask-image:radial-gradient(ellipse 80% 60% at 50% 0%, black, transparent 80%);
+}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-track{background:var(--bg2);}
+::-webkit-scrollbar-thumb{background:rgba(0,229,255,0.25);border-radius:6px;}
+::-webkit-scrollbar-thumb:hover{background:rgba(0,229,255,0.45);}
+
+a{color:inherit;text-decoration:none;}
+button{font-family:var(--font-body);cursor:pointer;}
+.container{max-width:1440px;margin:0 auto;padding:0 32px;}
+
+/* ---------- Glass card base ---------- */
+.glass{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:14px;
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  position:relative;
+  overflow:hidden;
+}
+.glass::before{
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg, transparent, rgba(0,229,255,0.6), transparent);
+}
+.glass:hover{border-color:var(--border-strong); box-shadow:0 0 30px -8px rgba(0,229,255,0.25);}
+.glass{transition:border-color .3s ease, box-shadow .3s ease, transform .3s ease;}
+
+/* ---------- NAV ---------- */
+nav{
+  position:sticky; top:0; z-index:100;
+  background:rgba(5,11,22,0.82);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.nav-inner{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 32px; max-width:1440px; margin:0 auto;
+}
+.logo{
+  display:flex; align-items:center; gap:10px;
+  font-family:var(--font-display); font-weight:800; letter-spacing:2px;
+  font-size:19px; color:var(--cyan);
+  text-shadow:0 0 18px rgba(0,229,255,0.6);
+}
+.logo .dot{
+  width:11px;height:11px;border-radius:50%;
+  background:var(--green); box-shadow:0 0 10px var(--green), 0 0 20px var(--green);
+  animation:pulse-dot 1.8s infinite;
+}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.3);}}
+.nav-center{
+  display:flex; align-items:center; gap:22px; font-family:var(--font-mono); font-size:12.5px; color:var(--text-dim);
+}
+.nav-center .factory-name{color:var(--text); font-family:var(--font-body); font-weight:600; letter-spacing:.5px;}
+.live-pill{
+  display:flex; align-items:center; gap:7px;
+  background:rgba(0,255,153,0.08); border:1px solid rgba(0,255,153,0.35);
+  padding:4px 12px; border-radius:20px; font-size:11px; color:var(--green); font-weight:600; letter-spacing:1px;
+}
+.live-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse-dot 1.8s infinite;}
+.nav-right{display:flex; align-items:center; gap:18px;}
+.icon-btn{
+  width:38px;height:38px;border-radius:10px;
+  background:rgba(255,255,255,0.03); border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;color:var(--text-dim);
+  position:relative; transition:all .2s;
+}
+.icon-btn:hover{border-color:var(--border-strong); color:var(--cyan);}
+.badge-dot{position:absolute;top:-3px;right:-3px;width:9px;height:9px;background:var(--red);border-radius:50%;border:2px solid var(--bg);box-shadow:0 0 8px var(--red);}
+.avatar{
+  width:38px;height:38px;border-radius:10px;
+  background:linear-gradient(135deg,#0a2540,#0e3350);
+  border:1px solid var(--border-strong);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display); font-weight:700; font-size:13px; color:var(--cyan);
+}
+
+/* ---------- Section shell ---------- */
+section{position:relative; z-index:1; padding:44px 0 8px;}
+.section-head{display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:10px;}
+.eyebrow{font-family:var(--font-mono); font-size:11px; letter-spacing:3px; color:var(--cyan); text-transform:uppercase; margin-bottom:6px; opacity:.85;}
+.section-title{font-family:var(--font-display); font-size:22px; font-weight:700; letter-spacing:1px; color:var(--text);}
+.section-sub{font-size:13px; color:var(--text-dim); margin-top:4px;}
+
+/* ---------- Hero ---------- */
+.hero{padding-top:26px;}
+.hero-grid{display:grid; grid-template-columns:1.15fr 1fr; gap:24px; align-items:stretch;}
+.hero-left{padding:30px 32px;}
+.tagline-eyebrow{font-family:var(--font-mono); font-size:12px; letter-spacing:4px; color:var(--green); margin-bottom:14px;}
+.hero-title{font-family:var(--font-display); font-size:38px; line-height:1.25; font-weight:800; letter-spacing:.5px;
+  background:linear-gradient(120deg, #EAF6FF 10%, var(--cyan) 55%, #6ffcd8 90%);
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  text-shadow:0 0 40px rgba(0,229,255,0.15);
+}
+.hero-desc{margin-top:14px; color:var(--text-dim); font-size:14.5px; max-width:520px; line-height:1.6;}
+.hero-cta{display:flex; gap:12px; margin-top:26px;}
+.btn{
+  font-family:var(--font-body); font-weight:600; font-size:13.5px; letter-spacing:.5px;
+  padding:12px 22px; border-radius:9px; border:1px solid var(--border-strong);
+  display:inline-flex; align-items:center; gap:8px; transition:all .2s;
+}
+.btn-primary{background:linear-gradient(135deg, rgba(0,229,255,0.18), rgba(0,255,153,0.1)); color:var(--cyan); box-shadow:0 0 22px -6px rgba(0,229,255,0.5);}
+.btn-primary:hover{box-shadow:0 0 32px -4px rgba(0,229,255,0.75); transform:translateY(-1px);}
+.btn-ghost{background:rgba(255,255,255,0.02); color:var(--text-dim); border-color:var(--border);}
+.btn-ghost:hover{color:var(--text); border-color:var(--border-strong);}
+
+/* Risk radial gauge */
+.hero-right{display:flex; flex-direction:column; align-items:center; justify-content:center; padding:26px; gap:10px;}
+.gauge-wrap{position:relative; width:220px; height:220px;}
+.gauge-label{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+.gauge-value{font-family:var(--font-display); font-size:44px; font-weight:800; color:var(--orange); text-shadow:0 0 24px rgba(255,106,0,0.6);}
+.gauge-sub{font-family:var(--font-mono); font-size:10.5px; color:var(--text-dim); letter-spacing:2px; margin-top:4px;}
+.gauge-tag{margin-top:14px; font-family:var(--font-mono); font-size:11px; padding:5px 14px; border-radius:20px; background:rgba(255,106,0,0.1); border:1px solid rgba(255,106,0,0.4); color:var(--orange); letter-spacing:1px;}
+
+/* ---------- Stat cards ---------- */
+.stat-row{display:grid; grid-template-columns:repeat(9,1fr); gap:14px; margin-top:24px;}
+.stat-card{padding:16px 14px; text-align:left;}
+.stat-icon{font-size:18px; margin-bottom:8px; opacity:.9;}
+.stat-val{font-family:var(--font-display); font-size:20px; font-weight:700; color:var(--text);}
+.stat-label{font-size:11px; color:var(--text-dim); margin-top:4px; letter-spacing:.3px;}
+.stat-card.c-cyan .stat-val{color:var(--cyan);}
+.stat-card.c-green .stat-val{color:var(--green);}
+.stat-card.c-amber .stat-val{color:var(--amber);}
+.stat-card.c-orange .stat-val{color:var(--orange);}
+.stat-card.c-red .stat-val{color:var(--red);}
+
+/* ---------- Sensor grid ---------- */
+.sensor-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:16px;}
+.sensor-card{padding:18px;}
+.sensor-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+.sensor-icon{
+  width:34px;height:34px;border-radius:9px; display:flex;align-items:center;justify-content:center; font-size:16px;
+  background:rgba(0,229,255,0.08); border:1px solid var(--border);
+}
+.status-chip{font-family:var(--font-mono); font-size:9.5px; letter-spacing:1px; padding:3px 8px; border-radius:12px; text-transform:uppercase;}
+.status-chip.ok{background:rgba(0,255,153,0.1); color:var(--green); border:1px solid rgba(0,255,153,0.35);}
+.status-chip.warn{background:rgba(255,193,7,0.1); color:var(--amber); border:1px solid rgba(255,193,7,0.35);}
+.status-chip.danger{background:rgba(255,106,0,0.1); color:var(--orange); border:1px solid rgba(255,106,0,0.35);}
+.sensor-name{font-size:12px; color:var(--text-dim); letter-spacing:.3px; margin-bottom:2px;}
+.sensor-val{font-family:var(--font-mono); font-size:24px; font-weight:700; color:var(--text);}
+.sensor-val span{font-size:12px; color:var(--text-faint); font-weight:400;}
+.sensor-chart{width:100%; height:36px; margin-top:10px;}
+.sensor-predict{font-size:10.5px; color:var(--text-faint); margin-top:8px; font-family:var(--font-mono);}
+.sensor-predict b{color:var(--cyan); font-weight:600;}
+
+/* ---------- Zones ---------- */
+.zone-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+.zone-card{overflow:hidden; cursor:pointer;}
+.zone-visual{
+  height:170px; position:relative; overflow:hidden;
+  border-bottom:1px solid var(--border);
+}
+.zone-visual svg{width:100%; height:100%; display:block;}
+.zone-status-tag{
+  position:absolute; top:12px; right:12px; font-family:var(--font-mono); font-size:10px; letter-spacing:1.5px;
+  padding:4px 11px; border-radius:20px; font-weight:700; text-transform:uppercase; backdrop-filter:blur(6px);
+}
+.zone-status-tag.safe{background:rgba(0,255,153,0.15); color:var(--green); border:1px solid var(--green);}
+.zone-status-tag.moderate{background:rgba(255,193,7,0.15); color:var(--amber); border:1px solid var(--amber);}
+.zone-status-tag.high{background:rgba(255,106,0,0.15); color:var(--orange); border:1px solid var(--orange);}
+.zone-status-tag.critical{background:rgba(255,23,68,0.18); color:var(--red); border:1px solid var(--red); animation:crit-blink 1.1s infinite;}
+@keyframes crit-blink{0%,100%{opacity:1;}50%{opacity:.55;}}
+.zone-body{padding:16px 18px 18px;}
+.zone-name{font-family:var(--font-display); font-size:14px; letter-spacing:1px; color:var(--text); margin-bottom:2px;}
+.zone-desc{font-size:11px; color:var(--text-faint); margin-bottom:12px;}
+.zone-stats{display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:11.5px; color:var(--text-dim); margin-bottom:12px;}
+.zone-stats div b{color:var(--text); font-family:var(--font-mono); font-weight:600;}
+.zone-risk-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+.zone-risk-label{font-size:11px; color:var(--text-dim);}
+.zone-risk-val{font-family:var(--font-mono); font-weight:700; font-size:17px;}
+.zone-bar{height:5px; border-radius:4px; background:rgba(255,255,255,0.06); overflow:hidden; margin-bottom:12px;}
+.zone-bar-fill{height:100%; border-radius:4px;}
+.zone-predict{font-size:10.5px; color:var(--text-faint); margin-bottom:14px; line-height:1.5; font-family:var(--font-mono);}
+.zone-btn{
+  width:100%; padding:10px; border-radius:8px; text-align:center;
+  background:rgba(0,229,255,0.06); border:1px solid var(--border-strong); color:var(--cyan);
+  font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; transition:all .2s;
+}
+.zone-btn:hover{background:rgba(0,229,255,0.15); box-shadow:0 0 18px -4px rgba(0,229,255,0.6);}
+
+/* zone svg helper colors used inline */
+
+/* ---------- Emergency Panel ---------- */
+.ep-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:14px;}
+.ep-btn{
+  padding:20px 14px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:10px;
+  border:1px solid var(--border);
+}
+.ep-btn .ep-icon{font-size:26px;}
+.ep-btn .ep-label{font-size:12px; font-weight:600; letter-spacing:.3px; color:var(--text);}
+.ep-btn .ep-status{font-family:var(--font-mono); font-size:9.5px; color:var(--text-faint); letter-spacing:1px;}
+.ep-btn.armed{border-color:var(--red); box-shadow:0 0 26px -6px rgba(255,23,68,0.6);}
+.ep-btn.armed .ep-status{color:var(--red);}
+.ep-btn:active{transform:scale(0.97);}
+
+/* ---------- Ambulance tracking ---------- */
+.amb-wrap{display:grid; grid-template-columns:1fr 320px; gap:20px;}
+.amb-map{position:relative; height:440px; overflow:hidden;}
+.amb-stats-row{display:grid; grid-template-columns:repeat(5,1fr); gap:1px; background:var(--border); border-bottom:1px solid var(--border);}
+.amb-stat{background:var(--panel-solid); padding:12px 14px;}
+.amb-stat-label{font-size:9.5px; color:var(--text-faint); letter-spacing:1px; text-transform:uppercase; font-family:var(--font-mono);}
+.amb-stat-val{font-family:var(--font-mono); font-weight:700; font-size:16px; margin-top:3px;}
+.amb-side{padding:18px; display:flex; flex-direction:column; gap:14px;}
+.amb-side h4{font-family:var(--font-display); font-size:12px; letter-spacing:1.5px; color:var(--text-dim); margin-bottom:4px;}
+.route-opt{padding:11px 12px; border-radius:9px; border:1px solid var(--border); font-size:11.5px; display:flex; flex-direction:column; gap:3px;}
+.route-opt .rname{display:flex; align-items:center; gap:7px; font-weight:600; color:var(--text);}
+.route-opt .rdot{width:8px;height:8px;border-radius:2px;}
+.route-opt.selected{border-color:var(--cyan); background:rgba(0,229,255,0.06);}
+.route-opt .rmeta{color:var(--text-faint); font-family:var(--font-mono); font-size:10.5px; padding-left:15px;}
+
+/* ---------- Timeline ---------- */
+.timeline{padding:26px 30px;}
+.tl-item{display:grid; grid-template-columns:78px 20px 1fr; gap:0; position:relative;}
+.tl-item .tl-time{font-family:var(--font-mono); font-size:11.5px; color:var(--text-dim); padding-top:2px;}
+.tl-item .tl-dotcol{display:flex; flex-direction:column; align-items:center;}
+.tl-item .tl-dot{width:11px;height:11px;border-radius:50%; margin-top:3px; box-shadow:0 0 10px currentColor; z-index:1;}
+.tl-item .tl-line{flex:1; width:1px; background:var(--border); margin-top:2px;}
+.tl-item:last-child .tl-line{display:none;}
+.tl-content{padding:0 0 26px 16px;}
+.tl-title{font-size:13.5px; font-weight:600; color:var(--text);}
+.tl-desc{font-size:11.5px; color:var(--text-faint); margin-top:2px;}
+
+/* ---------- AI Assistant ---------- */
+.ai-fab{
+  position:fixed; bottom:26px; right:26px; z-index:200;
+  width:58px; height:58px; border-radius:50%;
+  background:linear-gradient(135deg, var(--cyan), #0088aa);
+  display:flex; align-items:center; justify-content:center; font-size:24px;
+  box-shadow:0 0 30px rgba(0,229,255,0.6); border:none;
+}
+.ai-fab:hover{transform:scale(1.06);}
+.ai-panel{
+  position:fixed; bottom:96px; right:26px; z-index:200; width:360px; max-height:520px;
+  display:none; flex-direction:column; overflow:hidden;
+}
+.ai-panel.open{display:flex;}
+.ai-head{padding:14px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px;}
+.ai-head b{font-family:var(--font-display); font-size:12.5px; letter-spacing:1px;}
+.ai-body{flex:1; overflow-y:auto; padding:14px 16px; display:flex; flex-direction:column; gap:10px; max-height:340px;}
+.ai-msg{font-size:12.5px; line-height:1.5; padding:10px 12px; border-radius:10px; max-width:88%;}
+.ai-msg.bot{background:rgba(0,229,255,0.07); border:1px solid var(--border); align-self:flex-start;}
+.ai-msg.user{background:rgba(0,255,153,0.09); border:1px solid rgba(0,255,153,0.25); align-self:flex-end; color:var(--text);}
+.ai-suggest{padding:10px 16px; display:flex; flex-wrap:wrap; gap:6px; border-top:1px solid var(--border);}
+.ai-chip{font-size:10.5px; padding:6px 10px; border-radius:14px; background:rgba(255,255,255,0.03); border:1px solid var(--border); color:var(--text-dim);}
+.ai-chip:hover{color:var(--cyan); border-color:var(--border-strong);}
+
+/* ---------- Modal ---------- */
+.modal-overlay{
+  position:fixed; inset:0; background:rgba(2,6,14,0.78); backdrop-filter:blur(6px);
+  z-index:300; display:none; align-items:center; justify-content:center; padding:26px;
+}
+.modal-overlay.open{display:flex;}
+.modal-box{
+  width:100%; max-width:920px; max-height:88vh; overflow-y:auto;
+  padding:0;
+}
+.modal-hero{height:130px; position:relative; border-bottom:1px solid var(--border);}
+.modal-hero svg{width:100%;height:100%;}
+.modal-close{position:absolute; top:14px; right:14px; width:34px;height:34px;border-radius:9px; background:rgba(2,6,14,0.6); border:1px solid var(--border-strong); color:var(--text); display:flex; align-items:center; justify-content:center; font-size:16px; z-index:5;}
+.modal-title-bar{position:absolute; bottom:14px; left:20px; z-index:5;}
+.modal-title-bar h2{font-family:var(--font-display); font-size:20px; color:#fff; text-shadow:0 2px 10px rgba(0,0,0,0.6);}
+.modal-content{padding:22px 26px 28px;}
+.mgrid{display:grid; grid-template-columns:1.3fr 1fr; gap:20px;}
+.cctv-box{
+  height:200px; border-radius:12px; border:1px solid var(--border); position:relative; overflow:hidden;
+  background:linear-gradient(160deg,#061423,#020a14);
+}
+.scan-line{position:absolute; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--cyan),transparent); box-shadow:0 0 12px var(--cyan); animation:scan 2.6s linear infinite;}
+@keyframes scan{0%{top:0;}100%{top:100%;}}
+.cctv-label{position:absolute; top:10px; left:12px; font-family:var(--font-mono); font-size:10px; color:var(--red); display:flex; align-items:center; gap:6px;}
+.cctv-label .rec-dot{width:7px;height:7px;border-radius:50%; background:var(--red); animation:pulse-dot 1s infinite;}
+.mm-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:16px;}
+.mm-item{background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:9px; padding:10px 12px;}
+.mm-item .mmlabel{font-size:10px; color:var(--text-faint); letter-spacing:.5px;}
+.mm-item .mmval{font-family:var(--font-mono); font-weight:700; font-size:15px; margin-top:3px;}
+.side-block{background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:10px; padding:13px 14px; margin-bottom:12px;}
+.side-block h5{font-size:10.5px; letter-spacing:1px; color:var(--text-faint); text-transform:uppercase; margin-bottom:8px; font-family:var(--font-mono);}
+.rec-text{font-size:12.5px; line-height:1.6; color:var(--text);}
+.pill-row{display:flex; gap:8px; flex-wrap:wrap;}
+.pill{font-size:10px; padding:4px 10px; border-radius:12px; font-family:var(--font-mono); letter-spacing:.5px;}
+
+/* ---------- Tech marquee / footer ---------- */
+.marquee-wrap{overflow:hidden; border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:16px 0; margin-top:50px; background:rgba(255,255,255,0.015);}
+.marquee{display:flex; gap:40px; white-space:nowrap; animation:scroll-left 32s linear infinite; width:max-content;}
+@keyframes scroll-left{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+.marquee span{font-family:var(--font-mono); font-size:12px; color:var(--text-faint); letter-spacing:1px;}
+footer{padding:40px 0 60px; text-align:center;}
+footer .fname{font-family:var(--font-display); color:var(--cyan); letter-spacing:2px; font-size:14px;}
+footer p{font-size:11.5px; color:var(--text-faint); margin-top:8px;}
+
+.toast-wrap{position:fixed; top:80px; right:26px; z-index:400; display:flex; flex-direction:column; gap:10px;}
+.toast{
+  padding:12px 16px; border-radius:10px; font-size:12px; min-width:260px;
+  background:rgba(8,16,32,0.95); border:1px solid var(--border-strong); color:var(--text);
+  box-shadow:0 8px 30px rgba(0,0,0,0.5);
+  animation:toast-in .25s ease, toast-out .3s ease 3.2s forwards;
+  display:flex; align-items:center; gap:10px;
+}
+@keyframes toast-in{from{opacity:0; transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
+@keyframes toast-out{to{opacity:0; transform:translateX(30px);}}
+
+@media (max-width:1100px){
+  .stat-row{grid-template-columns:repeat(3,1fr);}
+  .sensor-grid{grid-template-columns:repeat(2,1fr);}
+  .zone-grid{grid-template-columns:1fr;}
+  .hero-grid{grid-template-columns:1fr;}
+  .amb-wrap{grid-template-columns:1fr;}
+  .ep-grid{grid-template-columns:repeat(2,1fr);}
+  .mgrid{grid-template-columns:1fr;}
+}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
-  <div class="nav-logo">
-    <div class="radar-wrap">
-      <div class="radar-circle">
-        <div class="radar-scan"></div>
-      </div>
+  <div class="nav-inner">
+    <div class="logo"><span class="dot"></span>SENTINEL<span style="color:var(--text)">AI</span></div>
+    <div class="nav-center">
+      <span class="live-pill"><span class="dot"></span>LIVE</span>
+      <span class="factory-name">Tata-Reliance Industrial Complex, Zone Cluster 7</span>
+      <span id="clock">--:--:--</span>
+      <span id="dateStr">-- --- ----</span>
     </div>
-    <div>
-      <div class="logo-text">SentinelAI</div>
-      <div class="logo-sub">Autonomous Industrial Safety Intelligence</div>
-    </div>
-  </div>
-
-  <div class="nav-center">
-    <div class="nav-title">⚡ AI COMMAND CENTER</div>
-    <div class="nav-tagline">Predict · Prevent · Protect · <span style="color:var(--green)">● LIVE</span></div>
-  </div>
-
-  <div class="nav-right">
-    <div class="nav-time">
-      <div class="time-val" id="clock">10:42:36 AM</div>
-      <div class="date-val" id="datestr">27 Jun 2026, Sat</div>
-    </div>
-    <div class="nav-icon">
-      🔔
-      <div class="badge">7</div>
-    </div>
-    <div class="nav-icon">⚙️</div>
-    <div class="avatar">SO</div>
-    <div style="font-size:11px;text-align:right">
-      <div style="color:var(--cyan);font-weight:600">Safety Officer</div>
-      <div style="color:var(--muted)">Admin</div>
+    <div class="nav-right">
+      <div class="icon-btn" title="Notifications">🔔<span class="badge-dot"></span></div>
+      <div class="icon-btn" title="Settings">⚙️</div>
+      <div class="avatar">SO</div>
     </div>
   </div>
 </nav>
 
-<!-- LAYOUT -->
-<div class="layout">
+<div class="container">
 
-<!-- SIDEBAR -->
-<sidebar>
-  <div class="nav-section">Navigation</div>
-  <div class="nav-item active">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-    AI Command Center
-  </div>
-  <div class="nav-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8 22 16 12 22 2 16 2 8"/></svg>
-    Factory Digital Twin
-  </div>
-  <div class="nav-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
-    Worker Monitoring
-  </div>
-  <div class="nav-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-    Machine Intelligence
-  </div>
-  <div class="nav-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
-    Safety Heatmap
-  </div>
-  <div class="nav-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 10l5-5-5-5"/><path d="M4 18v-2a7 7 0 0 1 7-7h9"/></svg>
-    CCTV AI Analytics
-  </div>
-  <div class="nav-section">Response</div>
-  <div class="nav-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-    Emergency Center
-  </div>
-  <div class="nav-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-    Predictive Maintenance
-  </div>
-  <div class="nav-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-    Compliance Dashboard
-  </div>
-  <div class="nav-section">Intelligence</div>
-  <div class="nav-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    AI Assistant
-  </div>
-  <div class="nav-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-    Incident Analytics
-  </div>
-  <div class="nav-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-    Reports
-  </div>
-  <div class="nav-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
-    Admin Portal
-  </div>
-
-  <div class="sys-status">
-    <div class="live-dot" style="margin-bottom:6px"></div>
-    <div style="font-size:11px;color:var(--text)">System Status</div>
-    <div class="sys-ok">● All Systems Operational</div>
-  </div>
-</sidebar>
-
-<!-- MAIN CONTENT -->
-<main>
-
-  <!-- STAT CARDS -->
-  <div class="stats-row">
-    <div class="stat-card" style="--accent-color: var(--red)">
-      <div class="stat-label">AI Risk Score</div>
-      <div class="stat-value red" id="risk-score">22%</div>
-      <div class="stat-sub green">● SAFE</div>
-      <div class="stat-icon">🎯</div>
-    </div>
-    <div class="stat-card" style="--accent-color: var(--green)">
-      <div class="stat-label">Safety Score</div>
-      <div class="stat-value green">97<span style="font-size:12px">/100</span></div>
-      <div class="stat-sub green">Excellent</div>
-      <div class="stat-icon">🛡️</div>
-    </div>
-    <div class="stat-card" style="--accent-color: var(--cyan)">
-      <div class="stat-label">Workers Present</div>
-      <div class="stat-value cyan" id="workers">128</div>
-      <div class="stat-sub">Active</div>
-      <div class="stat-icon">👷</div>
-    </div>
-    <div class="stat-card" style="--accent-color: var(--cyan)">
-      <div class="stat-label">Active Machines</div>
-      <div class="stat-value cyan">86</div>
-      <div class="stat-sub amber">Running</div>
-      <div class="stat-icon">⚙️</div>
-    </div>
-    <div class="stat-card" style="--accent-color: var(--amber)">
-      <div class="stat-label">Today's Incidents</div>
-      <div class="stat-value amber">2</div>
-      <div class="stat-sub">Total</div>
-      <div class="stat-icon">⚠️</div>
-    </div>
-    <div class="stat-card" style="--accent-color: var(--green)">
-      <div class="stat-label">Compliance</div>
-      <div class="stat-value green">98%</div>
-      <div class="stat-sub green">Compliant</div>
-      <div class="stat-icon">✅</div>
-    </div>
-    <div class="stat-card" style="--accent-color: var(--cyan)">
-      <div class="stat-label">Weather</div>
-      <div class="stat-value cyan" style="font-size:16px">31°C</div>
-      <div class="stat-sub">Humidity 62%</div>
-      <div class="stat-icon">🌤️</div>
-    </div>
-    <div class="stat-card" style="--accent-color: var(--cyan)">
-      <div class="stat-label">Wind Speed</div>
-      <div class="stat-value cyan" style="font-size:16px">12</div>
-      <div class="stat-sub">km/h · NE</div>
-      <div class="stat-icon">💨</div>
-    </div>
-  </div>
-
-  <!-- MIDDLE ROW -->
-  <div class="middle-row" style="height:340px">
-
-    <!-- FACTORY MAP -->
-    <div class="card">
-      <div class="card-header">
-        <div>
-          <div class="card-title">🏭 Factory Floor Map (LIVE)</div>
-          <div style="font-size:10px;color:var(--muted);margin-top:2px">
-            <span style="color:var(--green)">●</span> Safe (0-20%)
-            <span style="color:var(--amber);margin-left:8px">●</span> Moderate (21-40%)
-            <span style="color:var(--orange);margin-left:8px">●</span> High (41-70%)
-            <span style="color:var(--red);margin-left:8px">●</span> Critical (71-100%)
-          </div>
-        </div>
-        <button class="card-action">3D Digital Twin</button>
-      </div>
-      <div class="factory-map">
-
-        <!-- ZONE A -->
-        <div class="zone-card zone-safe">
-          <div style="position:absolute;inset:0;background:linear-gradient(135deg,#051428,#0a2040,#061830);"></div>
-          <div style="position:absolute;inset:0;background-image:url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"60\" height=\"60\"><rect width=\"60\" height=\"60\" fill=\"%230a1628\"/><rect x=\"10\" y=\"20\" width=\"8\" height=\"25\" fill=\"%23003366\" rx=\"1\"/><rect x=\"22\" y=\"15\" width=\"8\" height=\"30\" fill=\"%23003366\" rx=\"1\"/><rect x=\"34\" y=\"18\" width=\"8\" height=\"27\" fill=\"%23004488\" rx=\"1\"/><rect x=\"46\" y=\"12\" width=\"10\" height=\"33\" fill=\"%23003366\" rx=\"1\"/><line x1=\"10\" y1=\"45\" x2=\"56\" y2=\"45\" stroke=\"%23005588\" stroke-width=\"1.5\"/><circle cx=\"18\" cy=\"40\" r=\"4\" fill=\"%23005588\"/><circle cx=\"32\" cy=\"40\" r=\"4\" fill=\"%23004488\"/><circle cx=\"46\" cy=\"40\" r=\"3\" fill=\"%23003366\"/></svg>') repeat;opacity:0.3;"></div>
-          <div class="zone-overlay">
-            <div class="zone-header">
-              <div>
-                <div class="zone-name">ZONE A</div>
-                <div class="zone-desc">Heavy Machine Assembly</div>
-              </div>
-              <div class="zone-badge badge-safe">SAFE</div>
-            </div>
-            <div>
-              <div class="zone-risk green">12%</div>
-              <div class="zone-stats">
-                <div class="zone-stat">👷 28 Workers</div>
-                <div class="zone-stat">⚙️ 18 Machines</div>
-              </div>
-              <div class="zone-stats" style="margin-top:4px">
-                <div class="zone-stat">🌡️ 32°C</div>
-                <div class="zone-stat">💨 Gas: 0.8%</div>
-                <button class="view-btn" onclick="alert('Opening Zone A Dashboard...')">View Live Zone →</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ZONE B -->
-        <div class="zone-card zone-critical">
-          <div style="position:absolute;inset:0;background:linear-gradient(135deg,#1a0510,#2d0a18,#1a0510);"></div>
-          <div style="position:absolute;inset:0;background-image:url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"60\" height=\"60\"><rect width=\"60\" height=\"60\" fill=\"%231a0510\"/><ellipse cx=\"20\" cy=\"35\" rx=\"10\" ry=\"15\" fill=\"%23440011\"/><ellipse cx=\"40\" cy=\"30\" rx=\"8\" ry=\"18\" fill=\"%23440011\"/><ellipse cx=\"55\" cy=\"38\" rx=\"7\" ry=\"12\" fill=\"%23330011\"/><line x1=\"10\" y1=\"50\" x2=\"50\" y2=\"50\" stroke=\"%23660011\" stroke-width=\"2\"/><line x1=\"0\" y1=\"50\" x2=\"60\" y2=\"50\" stroke=\"%23660011\" stroke-width=\"2\"/></svg>') repeat;opacity:0.4;"></div>
-          <div class="zone-overlay" style="background:linear-gradient(135deg,rgba(50,5,15,0.8),rgba(20,2,8,0.4))">
-            <div class="zone-header">
-              <div>
-                <div class="zone-name">ZONE B</div>
-                <div class="zone-desc">Chemical Processing Unit</div>
-              </div>
-              <div class="zone-badge badge-critical">⚠ CRITICAL</div>
-            </div>
-            <div>
-              <div class="zone-risk red">96%</div>
-              <div class="zone-stats">
-                <div class="zone-stat">👷 31 Workers</div>
-                <div class="zone-stat">⚙️ 22 Machines</div>
-              </div>
-              <div class="zone-stats" style="margin-top:4px">
-                <div class="zone-stat">🌡️ 49°C</div>
-                <div class="zone-stat">⚠️ Gas: 8.2%</div>
-                <button class="view-btn" style="border-color:var(--red);color:var(--red)" onclick="alert('Opening Zone B Emergency Dashboard...')">View Live Zone →</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ZONE C -->
-        <div class="zone-card zone-high">
-          <div style="position:absolute;inset:0;background:linear-gradient(135deg,#140a00,#201400,#140a00);"></div>
-          <div style="position:absolute;inset:0;background-image:url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"60\" height=\"60\"><rect width=\"60\" height=\"60\" fill=\"%23140a00\"/><rect x=\"5\" y=\"25\" width=\"12\" height=\"30\" fill=\"%23331500\" rx=\"2\"/><rect x=\"22\" y=\"15\" width=\"12\" height=\"40\" fill=\"%23442200\" rx=\"2\"/><rect x=\"39\" y=\"20\" width=\"12\" height=\"35\" fill=\"%23331500\" rx=\"2\"/><line x1=\"5\" y1=\"25\" x2=\"17\" y2=\"25\" stroke=\"%23553300\" stroke-width=\"1\"/><line x1=\"22\" y1=\"15\" x2=\"34\" y2=\"15\" stroke=\"%23553300\" stroke-width=\"1\"/></svg>') repeat;opacity:0.35;"></div>
-          <div class="zone-overlay" style="background:linear-gradient(135deg,rgba(30,15,0,0.75),rgba(15,8,0,0.4))">
-            <div class="zone-header">
-              <div>
-                <div class="zone-name">ZONE C</div>
-                <div class="zone-desc">Oil & Gas Refinery</div>
-              </div>
-              <div class="zone-badge badge-high">HIGH</div>
-            </div>
-            <div>
-              <div class="zone-risk orange">61%</div>
-              <div class="zone-stats">
-                <div class="zone-stat">👷 24 Workers</div>
-                <div class="zone-stat">⚙️ 16 Machines</div>
-              </div>
-              <div class="zone-stats" style="margin-top:4px">
-                <div class="zone-stat">🌡️ 44°C</div>
-                <div class="zone-stat">⚠️ Gas: 4.1%</div>
-                <button class="view-btn" style="border-color:var(--orange);color:var(--orange)" onclick="alert('Opening Zone C Dashboard...')">View Live Zone →</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ZONE D -->
-        <div class="zone-card zone-moderate">
-          <div style="position:absolute;inset:0;background:linear-gradient(135deg,#0f1400,#1a1f00,#0f1400);"></div>
-          <div style="position:absolute;inset:0;background-image:url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"60\" height=\"60\"><rect width=\"60\" height=\"60\" fill=\"%230f1400\"/><rect x=\"8\" y=\"30\" width=\"15\" height=\"20\" fill=\"%23222800\" rx=\"3\"/><rect x=\"30\" y=\"25\" width=\"15\" height=\"25\" fill=\"%23222800\" rx=\"3\"/><rect x=\"50\" y=\"35\" width=\"8\" height=\"15\" fill=\"%23191f00\" rx=\"2\"/><circle cx=\"12\" cy=\"30\" r=\"5\" fill=\"%23333d00\"/><circle cx=\"35\" cy=\"25\" r=\"5\" fill=\"%23333d00\"/></svg>') repeat;opacity:0.35;"></div>
-          <div class="zone-overlay" style="background:linear-gradient(135deg,rgba(20,25,0,0.75),rgba(10,12,0,0.4))">
-            <div class="zone-header">
-              <div>
-                <div class="zone-name">ZONE D</div>
-                <div class="zone-desc">LPG Storage Area</div>
-              </div>
-              <div class="zone-badge badge-moderate">MODERATE</div>
-            </div>
-            <div>
-              <div class="zone-risk amber">34%</div>
-              <div class="zone-stats">
-                <div class="zone-stat">👷 22 Workers</div>
-                <div class="zone-stat">⚙️ 15 Machines</div>
-              </div>
-              <div class="zone-stats" style="margin-top:4px">
-                <div class="zone-stat">🌡️ 38°C</div>
-                <div class="zone-stat">Gas: 2.1%</div>
-                <button class="view-btn" style="border-color:var(--amber);color:var(--amber)" onclick="alert('Opening Zone D Dashboard...')">View Live Zone →</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- LIVE SENSOR FEED -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">📡 Live Sensor Feed</div>
-        <button class="card-action">View All</button>
-      </div>
-      <div class="sensor-list">
-        <div class="sensor-item">
-          <div class="sensor-icon" style="background:rgba(255,23,68,0.1);">💨</div>
-          <div class="sensor-info">
-            <div class="sensor-name">Gas (LEL)</div>
-            <div class="sensor-value red" id="gas-val">1.17%</div>
-          </div>
-          <div class="sensor-status status-normal">Normal</div>
-        </div>
-        <div class="sensor-item">
-          <div class="sensor-icon" style="background:rgba(255,193,7,0.1);">🌡️</div>
-          <div class="sensor-info">
-            <div class="sensor-name">Temperature</div>
-            <div class="sensor-value amber" id="temp-val">49.3 °C</div>
-          </div>
-          <div class="sensor-status status-warning">Warning</div>
-        </div>
-        <div class="sensor-item">
-          <div class="sensor-icon" style="background:rgba(0,229,255,0.1);">⚡</div>
-          <div class="sensor-info">
-            <div class="sensor-name">Pressure</div>
-            <div class="sensor-value cyan" id="pres-val">99.6 kPa</div>
-          </div>
-          <div class="sensor-status status-normal">Normal</div>
-        </div>
-        <div class="sensor-item">
-          <div class="sensor-icon" style="background:rgba(124,58,237,0.1);">📳</div>
-          <div class="sensor-info">
-            <div class="sensor-name">Machine Vibration</div>
-            <div class="sensor-value" style="color:#A78BFA" id="vib-val">17.3 Hz</div>
-          </div>
-          <div class="sensor-status status-normal">Normal</div>
-        </div>
-        <div class="sensor-item">
-          <div class="sensor-icon" style="background:rgba(0,255,153,0.1);">🌫️</div>
-          <div class="sensor-info">
-            <div class="sensor-name">CO₂</div>
-            <div class="sensor-value green" id="co2-val">481 ppm</div>
-          </div>
-          <div class="sensor-status status-normal">Normal</div>
-        </div>
-        <div class="sensor-item">
-          <div class="sensor-icon" style="background:rgba(0,229,255,0.1);">💧</div>
-          <div class="sensor-info">
-            <div class="sensor-name">Humidity</div>
-            <div class="sensor-value cyan" id="hum-val">62%</div>
-          </div>
-          <div class="sensor-status status-normal">Normal</div>
-        </div>
-        <div class="sensor-item">
-          <div class="sensor-icon" style="background:rgba(255,106,0,0.1);">🔊</div>
-          <div class="sensor-info">
-            <div class="sensor-name">Noise Level</div>
-            <div class="sensor-value orange" id="noise-val">72 dB</div>
-          </div>
-          <div class="sensor-status status-normal">Normal</div>
-        </div>
-        <div class="sensor-item">
-          <div class="sensor-icon" style="background:rgba(255,193,7,0.1);">⚙️</div>
-          <div class="sensor-info">
-            <div class="sensor-name">Machine Load</div>
-            <div class="sensor-value amber" id="load-val">68%</div>
-          </div>
-          <div class="sensor-status status-normal">Normal</div>
-        </div>
-        <div class="sensor-item">
-          <div class="sensor-icon" style="background:rgba(0,229,255,0.1);">🔌</div>
-          <div class="sensor-info">
-            <div class="sensor-name">Voltage</div>
-            <div class="sensor-value cyan">415 V</div>
-          </div>
-          <div class="sensor-status status-normal">Normal</div>
-        </div>
-        <div class="sensor-item">
-          <div class="sensor-icon" style="background:rgba(124,58,237,0.1);">⚡</div>
-          <div class="sensor-info">
-            <div class="sensor-name">Current</div>
-            <div class="sensor-value" style="color:#A78BFA">82 A</div>
-          </div>
-          <div class="sensor-status status-normal">Normal</div>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid">
+      <div class="glass hero-left">
+        <div class="tagline-eyebrow">PREDICT · PREVENT · PROTECT</div>
+        <div class="hero-title">Autonomous Industrial<br>Safety Intelligence</div>
+        <p class="hero-desc">From monitoring hazards to preventing disasters — SentinelAI fuses live sensor telemetry, computer vision and multi-agent AI to see risk before it becomes an incident.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#zones">🛰️ View Digital Twin</a>
+          <a class="btn btn-ghost" href="#emergency">⚠️ Emergency Panel</a>
         </div>
       </div>
-    </div>
-
-    <!-- RIGHT COLUMN: Emergency + Alert -->
-    <div style="display:flex;flex-direction:column;gap:10px;height:100%">
-
-      <!-- EMERGENCY PANEL -->
-      <div class="card" style="flex:1">
-        <div class="card-header">
-          <div class="card-title">🚨 Emergency Control</div>
-        </div>
-        <div class="emergency-panel">
-          <button class="emg-btn emg-voice" onclick="alert('AI Voice Announcement Activated!')">🔊 AI Voice Announcement</button>
-          <button class="emg-btn emg-alert" onclick="alert('Emergency Alert Sent to All Workers!')">📱 Emergency Alert to Workers</button>
-          <button class="emg-btn emg-ambu" onclick="alert('Ambulance Request Sent!')">🚑 Request Ambulance</button>
-          <button class="emg-btn emg-fire" onclick="alert('Fire Response Team Notified!')">🚒 Notify Fire Response Team</button>
-          <button class="emg-btn emg-safety" onclick="alert('Safety Officer Notified!')">📞 Notify Safety Officer</button>
-          <button class="emg-btn emg-siren" onclick="alert('Emergency Siren Activated!')">🔔 Emergency Siren</button>
-          <button class="emg-btn emg-shutdown" onclick="confirm('CONFIRM: Emergency Shutdown?') && alert('Emergency Shutdown Initiated!')">⛔ EMERGENCY SHUTDOWN</button>
-        </div>
-      </div>
-
-      <!-- ACTIVE ALERT -->
-      <div class="alert-box">
-        <div class="alert-header">
-          <div class="alert-title">🔴 Active Alert</div>
-          <div class="zone-badge badge-critical" style="font-size:9px">CRITICAL</div>
-        </div>
-        <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px">GAS LEAK DETECTED IN ZONE B</div>
-        <div class="alert-detail">
-          <div class="alert-key">Risk Score</div><div class="alert-val red">96%</div>
-          <div class="alert-key">Severity</div><div class="alert-val red">Critical</div>
-          <div class="alert-key">Detected At</div><div class="alert-val">10:41:52 AM</div>
-          <div class="alert-key">Recommended</div><div class="alert-val amber">Evacuate Zone B</div>
-        </div>
-        <button class="view-btn" style="width:100%;margin-top:8px;text-align:center;justify-content:center;border-color:var(--red);color:var(--red)" onclick="alert('Opening Incident Details...')">View Incident Details</button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- BOTTOM ROW: Charts + Machine + Workers + Timeline -->
-  <div class="bottom-row">
-
-    <!-- AI RISK PREDICTION CHART -->
-    <div class="card">
-      <div class="card-header">
-        <div>
-          <div class="card-title">📈 AI Risk Prediction</div>
-          <div class="nano">Next 2 Hours</div>
-        </div>
-        <button class="card-action">View Full</button>
-      </div>
-      <div style="padding:8px;height:140px;position:relative">
-        <canvas id="riskChart" role="img" aria-label="AI risk prediction chart for zones A through D over next 2 hours"></canvas>
-      </div>
-    </div>
-
-    <!-- MACHINE HEALTH -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">🔧 Machine Health</div>
-        <button class="card-action">View All</button>
-      </div>
-      <div class="machine-list">
-        <div class="machine-item">
-          <span style="color:var(--muted);font-size:11px">Machine M-01</span>
-          <span class="green fw7">Healthy</span>
-          <div class="mach-bar-wrap"><div class="mach-bar" style="width:98%;background:var(--green)"></div></div>
-          <span class="green" style="font-size:11px">98%</span>
-        </div>
-        <div class="machine-item">
-          <span style="color:var(--muted);font-size:11px">Machine M-04</span>
-          <span class="red fw7">Critical</span>
-          <div class="mach-bar-wrap"><div class="mach-bar" style="width:42%;background:var(--red)"></div></div>
-          <span class="red" style="font-size:11px">42%</span>
-        </div>
-        <div class="machine-item">
-          <span style="color:var(--muted);font-size:11px">Machine M-07</span>
-          <span class="amber fw7">Warning</span>
-          <div class="mach-bar-wrap"><div class="mach-bar" style="width:71%;background:var(--amber)"></div></div>
-          <span class="amber" style="font-size:11px">71%</span>
-        </div>
-        <div class="machine-item">
-          <span style="color:var(--muted);font-size:11px">Machine M-11</span>
-          <span class="green fw7">Healthy</span>
-          <div class="mach-bar-wrap"><div class="mach-bar" style="width:89%;background:var(--green)"></div></div>
-          <span class="green" style="font-size:11px">89%</span>
-        </div>
-        <div class="machine-item">
-          <span style="color:var(--muted);font-size:11px">Machine M-15</span>
-          <span class="amber fw7">Warning</span>
-          <div class="mach-bar-wrap"><div class="mach-bar" style="width:63%;background:var(--amber)"></div></div>
-          <span class="amber" style="font-size:11px">63%</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- WORKER STATUS -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">👷 Worker Status (LIVE)</div>
-      </div>
-      <div class="worker-donut-wrap">
-        <div style="position:relative;width:90px;height:90px;flex-shrink:0">
-          <canvas id="workerChart" role="img" aria-label="Worker status donut chart: 89 safe, 22 evacuating, 3 no response"></canvas>
-          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;pointer-events:none">
-            <div style="font-family:'Orbitron',monospace;font-size:16px;font-weight:700;color:var(--text)">114</div>
-            <div style="font-size:8px;color:var(--muted)">Total</div>
-          </div>
-        </div>
-        <div class="worker-legend">
-          <div class="legend-item">
-            <div class="legend-dot" style="background:var(--green)"></div>
-            <span>Safe</span>
-            <span class="green fw7" style="margin-left:auto">89</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-dot" style="background:var(--amber)"></div>
-            <span>Evacuating</span>
-            <span class="amber fw7" style="margin-left:auto">22</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-dot" style="background:var(--red)"></div>
-            <span>No Response</span>
-            <span class="red fw7" style="margin-left:auto">3</span>
-          </div>
-          <button class="view-btn" style="margin-top:6px;width:100%" onclick="alert('Opening Worker Dashboard...')">View Workers</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- INCIDENT TIMELINE -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">⏱️ Incident Timeline</div>
-        <button class="card-action">View All</button>
-      </div>
-      <div class="timeline">
-        <div class="tl-item"><div class="tl-dot" style="background:var(--red)"></div><span class="tl-time">10:41</span><span class="tl-event">Gas Leak Detected in Zone B</span></div>
-        <div class="tl-item"><div class="tl-dot" style="background:var(--red)"></div><span class="tl-time">10:41</span><span class="tl-event">Risk Score Increased to 96%</span></div>
-        <div class="tl-item"><div class="tl-dot" style="background:var(--amber)"></div><span class="tl-time">10:42</span><span class="tl-event">Workers Alerted via Mobile</span></div>
-        <div class="tl-item"><div class="tl-dot" style="background:var(--cyan)"></div><span class="tl-time">10:42</span><span class="tl-event">AI Voice Announcement Started</span></div>
-        <div class="tl-item"><div class="tl-dot" style="background:var(--cyan)"></div><span class="tl-time">10:42</span><span class="tl-event">Ambulance Request Generated</span></div>
-        <div class="tl-item"><div class="tl-dot" style="background:var(--orange)"></div><span class="tl-time">10:42</span><span class="tl-event">Evacuation in Progress</span></div>
-        <div class="tl-item"><div class="tl-dot" style="background:var(--green)"></div><span class="tl-time">10:43</span><span class="tl-event">Fire Team En Route</span></div>
-      </div>
-    </div>
-
-    <!-- VOICE ANNOUNCEMENT -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">🔊 AI Voice</div>
-        <span style="font-size:10px;background:rgba(0,255,153,0.1);color:var(--green);padding:2px 8px;border-radius:3px;font-weight:600">Active</span>
-      </div>
-      <div style="padding:10px">
-        <div style="font-size:10px;color:var(--green);font-weight:700;margin-bottom:6px">● LIVE ANNOUNCEMENT IN PROGRESS</div>
-        <div class="waveform">
-          <div class="wave-bar" style="animation-delay:0s;height:8px"></div>
-          <div class="wave-bar" style="animation-delay:0.05s;height:14px"></div>
-          <div class="wave-bar" style="animation-delay:0.1s;height:18px"></div>
-          <div class="wave-bar" style="animation-delay:0.15s;height:10px"></div>
-          <div class="wave-bar" style="animation-delay:0.2s;height:20px"></div>
-          <div class="wave-bar" style="animation-delay:0.25s;height:14px"></div>
-          <div class="wave-bar" style="animation-delay:0.3s;height:8px"></div>
-          <div class="wave-bar" style="animation-delay:0.35s;height:16px"></div>
-          <div class="wave-bar" style="animation-delay:0.4s;height:20px"></div>
-          <div class="wave-bar" style="animation-delay:0.45s;height:12px"></div>
-          <div class="wave-bar" style="animation-delay:0.5s;height:6px"></div>
-          <div class="wave-bar" style="animation-delay:0.55s;height:18px"></div>
-          <div class="wave-bar" style="animation-delay:0.6s;height:14px"></div>
-          <div class="wave-bar" style="animation-delay:0.65s;height:20px"></div>
-          <div class="wave-bar" style="animation-delay:0.7s;height:10px"></div>
-          <div class="wave-bar" style="animation-delay:0.75s;height:16px"></div>
-        </div>
-        <div style="font-size:10px;color:var(--muted);margin-top:6px;line-height:1.5">
-          Attention! Gas leak detected in Zone B. All workers evacuate immediately using Exit Route 2. Safety officers proceed to Zone B.
-        </div>
-        <div style="font-size:10px;color:var(--muted);margin-top:4px">Language: English + Kannada</div>
-        <button class="emg-btn emg-siren" style="margin-top:8px;padding:6px 10px;font-size:10px">⏹ Stop Announcement</button>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- MINI BOTTOM SECTIONS -->
-  <div class="mini-sections" style="margin-bottom:36px">
-
-    <!-- WORKER EMERGENCY ALERTS -->
-    <div class="mini-card">
-      <div class="card-header">
-        <div class="card-title">📱 Worker Emergency Alert</div>
-        <button class="card-action">View All</button>
-      </div>
-      <div class="mini-body">
-        <div class="worker-alert-item">
-          <div class="avatar-sm" style="background:rgba(0,229,255,0.2);color:var(--cyan)">TG</div>
-          <div style="flex:1">
-            <div style="font-weight:600">Tharun Gowda</div>
-            <div style="color:var(--muted)">Zone B</div>
-          </div>
-          <div class="sent-badge">✓ Alert Sent</div>
-        </div>
-        <div class="worker-alert-item">
-          <div class="avatar-sm" style="background:rgba(0,255,153,0.2);color:var(--green)">RK</div>
-          <div style="flex:1">
-            <div style="font-weight:600">Ravi Kumar</div>
-            <div style="color:var(--muted)">Zone B</div>
-          </div>
-          <div class="sent-badge">✓ Alert Sent</div>
-        </div>
-        <div class="worker-alert-item">
-          <div class="avatar-sm" style="background:rgba(124,58,237,0.2);color:#A78BFA">AS</div>
-          <div style="flex:1">
-            <div style="font-weight:600">Akash Shetty</div>
-            <div style="color:var(--muted)">Zone B</div>
-          </div>
-          <div class="sent-badge">✓ Alert Sent</div>
-        </div>
-        <div class="worker-alert-item">
-          <div class="avatar-sm" style="background:rgba(255,193,7,0.2);color:var(--amber)">KP</div>
-          <div style="flex:1">
-            <div style="font-weight:600">Kiran Patel</div>
-            <div style="color:var(--muted)">Zone B</div>
-          </div>
-          <div class="sent-badge">✓ Alert Sent</div>
-        </div>
-        <button class="emg-btn emg-alert" style="margin-top:6px;padding:7px;font-size:10px">📱 Send Alert to All Workers</button>
-      </div>
-    </div>
-
-    <!-- AMBULANCE REQUEST -->
-    <div class="mini-card">
-      <div class="card-header">
-        <div class="card-title">🚑 Ambulance Request</div>
-        <button class="card-action">View All</button>
-      </div>
-      <div class="ambu-info">
-        <div style="text-align:center;font-size:28px;margin:6px 0">🚑</div>
-        <div><span>Location</span><span style="color:var(--text)">ABC Steel Plant, Zone B</span></div>
-        <div><span>Incident</span><span class="red">Gas Leak / Explosion Risk</span></div>
-        <div><span>Status</span><span class="amber">Request Generated</span></div>
-        <div><span>ETA</span><span class="green fw7">6 Minutes</span></div>
-        <div><span>Hospital</span><span style="color:var(--text)">City General Hospital</span></div>
-        <button class="view-btn" style="width:100%;margin-top:8px;text-align:center" onclick="alert('Opening Ambulance Tracker...')">Track Ambulance</button>
-      </div>
-    </div>
-
-    <!-- EMERGENCY SIREN -->
-    <div class="mini-card">
-      <div class="card-header">
-        <div class="card-title">🔔 Emergency Siren</div>
-        <span style="font-size:10px;background:rgba(0,255,153,0.1);color:var(--green);padding:2px 8px;border-radius:3px;font-weight:600">Active</span>
-      </div>
-      <div class="siren-display">
-        <div class="siren-anim">🚨</div>
-        <div style="font-size:11px;color:var(--muted)">Siren Status</div>
-        <div style="font-size:13px;font-weight:700;color:var(--red)">ACTIVE</div>
-        <div style="font-size:10px;color:var(--muted)">Volume: <span class="fw7" style="color:var(--text)">100%</span></div>
-        <div style="font-size:10px;color:var(--muted)">Duration: <span class="fw7" style="color:var(--text)">30 Sec</span></div>
-        <button class="emg-btn emg-siren" style="padding:6px 14px;font-size:10px" onclick="alert('Siren stopped.')">⏹ Stop Siren</button>
-      </div>
-    </div>
-
-    <!-- EVACUATION ROUTE -->
-    <div class="mini-card">
-      <div class="card-header">
-        <div class="card-title">🗺️ Evacuation Route</div>
-        <button class="card-action">View Map</button>
-      </div>
-      <div style="padding:8px">
-        <div class="evac-map">
-          <svg width="100%" height="100%" viewBox="0 0 200 100">
-            <rect width="200" height="100" fill="none"/>
-            <rect x="10" y="10" width="50" height="35" fill="rgba(255,23,68,0.2)" stroke="rgba(255,23,68,0.5)" stroke-width="1" rx="3"/>
-            <text x="35" y="32" fill="#FF1744" font-size="9" text-anchor="middle" font-weight="bold">ZONE B</text>
-            <rect x="80" y="20" width="40" height="25" fill="rgba(255,193,7,0.1)" stroke="rgba(255,193,7,0.3)" stroke-width="1" rx="2"/>
-            <text x="100" y="36" fill="#FFC107" font-size="7" text-anchor="middle">Route</text>
-            <path d="M60 27 L80 30 L120 30 L155 50 L175 65" stroke="#00FF99" stroke-width="2" fill="none" stroke-dasharray="4,2"/>
-            <circle cx="60" cy="27" r="4" fill="rgba(255,23,68,0.5)"/>
-            <text x="175" y="80" fill="#00FF99" font-size="8" text-anchor="middle">Exit</text>
-            <text x="175" y="90" fill="#00FF99" font-size="7" text-anchor="middle">Route 2</text>
-            <circle cx="175" cy="65" r="5" fill="rgba(0,255,153,0.3)" stroke="#00FF99" stroke-width="1.5"/>
-            <text x="140" y="90" fill="#00E5FF" font-size="7" text-anchor="middle">Assembly A</text>
-            <circle cx="145" cy="82" r="4" fill="rgba(0,229,255,0.3)" stroke="#00E5FF" stroke-width="1.5"/>
+      <div class="glass hero-right">
+        <div class="gauge-wrap">
+          <svg width="220" height="220" viewBox="0 0 220 220">
+            <circle cx="110" cy="110" r="92" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="14"/>
+            <circle id="riskArc" cx="110" cy="110" r="92" fill="none" stroke="url(#riskGrad)" stroke-width="14" stroke-linecap="round" stroke-dasharray="578" stroke-dashoffset="245" transform="rotate(-90 110 110)"/>
+            <defs>
+              <linearGradient id="riskGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FFC107"/>
+                <stop offset="100%" stop-color="#FF6A00"/>
+              </linearGradient>
+            </defs>
           </svg>
+          <div class="gauge-label">
+            <div class="gauge-value">57%</div>
+            <div class="gauge-sub">AI RISK SCORE</div>
+          </div>
         </div>
-        <div style="font-size:10px;color:var(--muted);margin-top:4px">Est. Evacuation Time: <span class="amber fw7">4 min 20 sec</span></div>
-        <div style="font-size:10px;color:var(--muted)">Workers Moving: <span class="green fw7">22 Active</span></div>
+        <div class="gauge-tag">● ELEVATED — ZONE C &amp; D DRIVING SCORE</div>
       </div>
     </div>
 
-    <!-- AI ASSISTANT -->
-    <div class="mini-card">
-      <div class="card-header">
-        <div class="card-title">🤖 AI Assistant</div>
-        <span style="font-size:10px;color:var(--cyan)">SentinelGPT</span>
-      </div>
-      <div style="padding:8px;display:flex;flex-direction:column;gap:5px">
-        <div style="background:var(--card2);border-radius:6px;padding:6px 8px;font-size:10px;border:1px solid var(--border)">
-          <div style="color:var(--muted)">AI</div>
-          <div style="color:var(--text);margin-top:2px">Zone B has 96% risk due to gas leak. Immediate evacuation recommended. 31 workers affected.</div>
+    <div class="stat-row">
+      <div class="glass stat-card c-orange"><div class="stat-icon">🧠</div><div class="stat-val">57%</div><div class="stat-label">AI Risk Score</div></div>
+      <div class="glass stat-card c-green"><div class="stat-icon">🛡️</div><div class="stat-val">88%</div><div class="stat-label">Safety Score</div></div>
+      <div class="glass stat-card c-cyan"><div class="stat-icon">👷</div><div class="stat-val">70</div><div class="stat-label">Workers Present</div></div>
+      <div class="glass stat-card c-cyan"><div class="stat-icon">⚙️</div><div class="stat-val">142</div><div class="stat-label">Active Machines</div></div>
+      <div class="glass stat-card c-amber"><div class="stat-icon">🚨</div><div class="stat-val">2</div><div class="stat-label">Today's Incidents</div></div>
+      <div class="glass stat-card c-green"><div class="stat-icon">✅</div><div class="stat-val">94%</div><div class="stat-label">Compliance Score</div></div>
+      <div class="glass stat-card c-cyan"><div class="stat-icon">🌤️</div><div class="stat-val">31°C</div><div class="stat-label">Weather</div></div>
+      <div class="glass stat-card c-cyan"><div class="stat-icon">💧</div><div class="stat-val">64%</div><div class="stat-label">Humidity</div></div>
+      <div class="glass stat-card c-cyan"><div class="stat-icon">🌬️</div><div class="stat-val">14km/h</div><div class="stat-label">Wind Speed</div></div>
+    </div>
+  </section>
+
+  <!-- LIVE SENSORS -->
+  <section id="sensors">
+    <div class="section-head">
+      <div><div class="eyebrow">Real-Time Telemetry</div><div class="section-title">Live Sensor Feed</div></div>
+      <div class="section-sub">Updating every 2 seconds · 10 active channels</div>
+    </div>
+    <div class="sensor-grid" id="sensorGrid"></div>
+  </section>
+
+  <!-- FACTORY DIGITAL TWIN -->
+  <section id="zones">
+    <div class="section-head">
+      <div><div class="eyebrow">Factory Digital Twin</div><div class="section-title">Zone Risk Map</div></div>
+      <div class="section-sub">Click a zone to open its live dashboard</div>
+    </div>
+    <div class="zone-grid" id="zoneGrid"></div>
+  </section>
+
+  <!-- EMERGENCY CONTROL PANEL -->
+  <section id="emergency">
+    <div class="section-head">
+      <div><div class="eyebrow">Rapid Response</div><div class="section-title">Emergency Control Panel</div></div>
+      <div class="section-sub">All actions are logged and require confirmation</div>
+    </div>
+    <div class="glass" style="padding:20px;">
+      <div class="ep-grid" id="epGrid"></div>
+    </div>
+  </section>
+
+  <!-- AMBULANCE TRACKING -->
+  <section id="ambulance">
+    <div class="section-head">
+      <div><div class="eyebrow">Emergency Medical Response</div><div class="section-title">Live Ambulance Tracking</div></div>
+      <div class="section-sub">Dispatched to Zone D · LPG Storage Area</div>
+    </div>
+    <div class="glass amb-wrap">
+      <div>
+        <div class="amb-stats-row">
+          <div class="amb-stat"><div class="amb-stat-label">ETA</div><div class="amb-stat-val" style="color:var(--green)" id="ambEta">08:24 min</div></div>
+          <div class="amb-stat"><div class="amb-stat-label">Distance</div><div class="amb-stat-val" id="ambDist">6.8 km</div></div>
+          <div class="amb-stat"><div class="amb-stat-label">Speed</div><div class="amb-stat-val">72 km/h</div></div>
+          <div class="amb-stat"><div class="amb-stat-label">Traffic</div><div class="amb-stat-val" style="color:var(--amber)">Moderate</div></div>
+          <div class="amb-stat"><div class="amb-stat-label">Route</div><div class="amb-stat-val" style="color:var(--green)">Optimal</div></div>
         </div>
-        <button class="view-btn" onclick="sendPrompt('Generate an incident report for the gas leak in Zone B')" style="width:100%;text-align:left;padding:5px 8px">📄 Generate Incident Report ↗</button>
-        <button class="view-btn" onclick="sendPrompt('Which machine in the plant has the highest risk right now?')" style="width:100%;text-align:left;padding:5px 8px">⚙️ Highest Risk Machine ↗</button>
-        <button class="view-btn" onclick="sendPrompt('Show all workers currently inside Zone B')" style="width:100%;text-align:left;padding:5px 8px">👷 Workers in Zone B ↗</button>
-        <div style="display:flex;gap:5px;margin-top:2px">
-          <input type="text" placeholder="Ask AI anything..." style="flex:1;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:10px;color:var(--text);outline:none" id="ai-input" onkeydown="if(event.key==='Enter'&&this.value){sendPrompt(this.value);this.value=''}">
+        <div class="amb-map" id="ambMap"></div>
+      </div>
+      <div class="amb-side">
+        <h4>ROUTE OPTIONS</h4>
+        <div class="route-opt selected"><div class="rname"><span class="rdot" style="background:var(--cyan)"></span>Route C (Selected)</div><div class="rmeta">6.8 km · 08:24 min</div></div>
+        <div class="route-opt"><div class="rname"><span class="rdot" style="background:var(--red)"></span>Route A (Blocked)</div><div class="rmeta">12.7 km · 16:45 min</div></div>
+        <div class="route-opt"><div class="rname"><span class="rdot" style="background:var(--amber)"></span>Route B (Congested)</div><div class="rmeta">10.3 km · 12:18 min</div></div>
+        <div class="side-block" style="margin-top:6px;">
+          <h5>DISPATCH INFO</h5>
+          <div class="rec-text" style="font-size:11.5px;">🚑 Unit AMB-114 · Driver R. Kulkarni<br>🏥 Assigned: City Care Hospital<br>📍 Origin: Zone D — LPG Storage Area<br>🔴 Emergency Level: Critical</div>
+        </div>
+        <a class="btn btn-primary" style="justify-content:center;" onclick="fireToast('📍 Live location shared with control room','ok')">📡 Share Live Location</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- INCIDENT TIMELINE -->
+  <section id="timeline">
+    <div class="section-head">
+      <div><div class="eyebrow">Root Cause Chronology</div><div class="section-title">Incident Timeline — INC-2291</div></div>
+      <div class="section-sub">Zone D · Gas Leak Event · Auto-generated</div>
+    </div>
+    <div class="glass timeline" id="tlList"></div>
+  </section>
+
+  <div class="marquee-wrap">
+    <div class="marquee" id="marquee"></div>
+  </div>
+
+  <footer>
+    <div class="fname">SENTINEL<span style="color:var(--text)">AI</span></div>
+    <p>Autonomous Industrial Safety Intelligence Platform · Built for Zero-Incident Operations</p>
+  </footer>
+</div>
+
+<!-- AI Assistant -->
+<button class="ai-fab" onclick="toggleAI()">🤖</button>
+<div class="glass ai-panel" id="aiPanel">
+  <div class="ai-head"><span style="color:var(--cyan)">🧠</span><b>SENTINEL ASSISTANT</b></div>
+  <div class="ai-body" id="aiBody">
+    <div class="ai-msg bot">Hi, I'm monitoring 6 zones and 142 machines right now. Ask me anything about current risk.</div>
+  </div>
+  <div class="ai-suggest">
+    <div class="ai-chip" onclick="askAI('Which machine has highest risk?')">Highest risk machine?</div>
+    <div class="ai-chip" onclick="askAI('Why is Zone C High Risk?')">Why is Zone C High Risk?</div>
+    <div class="ai-chip" onclick="askAI('Generate incident report')">Generate incident report</div>
+  </div>
+</div>
+
+<!-- Zone Modal -->
+<div class="modal-overlay" id="zoneModal">
+  <div class="glass modal-box">
+    <div class="modal-hero" id="modalHero">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div class="modal-title-bar"><h2 id="modalTitle">Zone A</h2></div>
+    </div>
+    <div class="modal-content">
+      <div class="mgrid">
+        <div>
+          <div class="cctv-box">
+            <div class="cctv-label"><span class="rec-dot"></span>CCTV-04 · LIVE SIMULATION</div>
+            <div class="scan-line"></div>
+          </div>
+          <div class="mm-grid" id="modalSensors"></div>
+        </div>
+        <div>
+          <div class="side-block">
+            <h5>AI RECOMMENDATION</h5>
+            <div class="rec-text" id="modalRec">—</div>
+          </div>
+          <div class="side-block">
+            <h5>STATUS</h5>
+            <div class="pill-row">
+              <span class="pill" id="modalShift" style="background:rgba(0,229,255,0.1);color:var(--cyan);border:1px solid var(--border-strong)">Shift B</span>
+              <span class="pill" id="modalPermit" style="background:rgba(0,255,153,0.1);color:var(--green);border:1px solid rgba(0,255,153,0.35)">Permit Active</span>
+              <span class="pill" id="modalEmergency" style="background:rgba(255,255,255,0.05);color:var(--text-dim);border:1px solid var(--border)">No Emergency</span>
+            </div>
+          </div>
+          <div class="side-block">
+            <h5>WORKERS PRESENT</h5>
+            <div class="rec-text" id="modalWorkers">—</div>
+          </div>
         </div>
       </div>
     </div>
-
-  </div>
-
-</main>
-</div>
-
-<!-- CRITICAL FOOTER TICKER -->
-<div class="critical-footer">
-  <div class="ticker">
-    <div class="ticker-label">⚠ CRITICAL ALERT</div>
-    <div class="ticker-text">GAS LEAK DETECTED IN ZONE B · RISK SCORE 96% · EVACUATION IN PROGRESS · 22 WORKERS EVACUATING · AMBULANCE ETA: 6 MINUTES · ALL SAFETY OFFICERS MOBILIZED · GAS LEAK DETECTED IN ZONE B · RISK SCORE 96% · EVACUATION IN PROGRESS · 22 WORKERS EVACUATING</div>
-  </div>
-  <div class="footer-right">
-    <span>System Uptime: 2d 14h 36m</span>
-    <span>Powered by SentinelAI v2.0</span>
   </div>
 </div>
+
+<div class="toast-wrap" id="toastWrap"></div>
 
 <script>
-function sendPrompt(text) {
-  if (window.parent && window.parent.sendPrompt) {
-    window.parent.sendPrompt(text);
-  }
+/* ===================== Clock ===================== */
+function tickClock(){
+  const d = new Date();
+  document.getElementById('clock').textContent = d.toLocaleTimeString('en-IN',{hour12:false});
+  document.getElementById('dateStr').textContent = d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+}
+tickClock(); setInterval(tickClock,1000);
+
+/* ===================== Toast ===================== */
+function fireToast(msg, type){
+  const wrap = document.getElementById('toastWrap');
+  const t = document.createElement('div');
+  t.className='toast';
+  const color = type==='crit' ? 'var(--red)' : type==='warn' ? 'var(--amber)' : 'var(--green)';
+  t.innerHTML = `<span style="width:8px;height:8px;border-radius:50%;background:${color};box-shadow:0 0 8px ${color};flex-shrink:0"></span>${msg}`;
+  wrap.appendChild(t);
+  setTimeout(()=>t.remove(),3500);
 }
 
-// CLOCK
-function updateClock() {
-  const now = new Date();
-  let h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  h = h % 12 || 12;
-  document.getElementById('clock').textContent =
-    `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} ${ampm}`;
+/* ===================== Sensors ===================== */
+const sensors = [
+  {name:'Gas (LEL)', icon:'🧪', val:18, unit:'%', status:'ok', predict:'Stable. No leak trend detected.'},
+  {name:'Temperature', icon:'🌡️', val:42, unit:'°C', status:'warn', predict:'Rising 0.4°C/hr near Zone C reactor.'},
+  {name:'Pressure', icon:'🧭', val:4.2, unit:'bar', status:'ok', predict:'Within nominal operating band.'},
+  {name:'Machine Vibration', icon:'📳', val:2.1, unit:'mm/s', status:'ok', predict:'Bearing wear normal for cycle.'},
+  {name:'CO₂', icon:'💨', val:612, unit:'ppm', status:'ok', predict:'Ventilation performing as expected.'},
+  {name:'Humidity', icon:'💧', val:64, unit:'%', status:'ok', predict:'No corrosion risk projected.'},
+  {name:'Noise', icon:'🔊', val:81, unit:'dB', status:'warn', predict:'Approaching PPE mandatory threshold.'},
+  {name:'Machine Load', icon:'⚙️', val:76, unit:'%', status:'ok', predict:'Capacity headroom: 24%.'},
+  {name:'Voltage', icon:'⚡', val:412, unit:'V', status:'ok', predict:'Grid supply stable, no sag events.'},
+  {name:'Current', icon:'🔌', val:118, unit:'A', status:'warn', predict:'Load spike pattern flagged for review.'},
+];
+const sensorGrid = document.getElementById('sensorGrid');
+sensors.forEach((s,i)=>{
+  const card = document.createElement('div');
+  card.className='glass sensor-card';
+  card.innerHTML = `
+    <div class="sensor-top">
+      <div class="sensor-icon">${s.icon}</div>
+      <div class="status-chip ${s.status}">${s.status==='ok'?'Normal':s.status==='warn'?'Watch':'Alert'}</div>
+    </div>
+    <div class="sensor-name">${s.name}</div>
+    <div class="sensor-val" id="sv-${i}">${s.val}<span> ${s.unit}</span></div>
+    <canvas class="sensor-chart" id="sc-${i}" width="240" height="36"></canvas>
+    <div class="sensor-predict">🔮 <b>Predict:</b> ${s.predict}</div>
+  `;
+  sensorGrid.appendChild(card);
+});
+
+function drawSpark(id, data, color){
+  const c = document.getElementById(id);
+  if(!c) return;
+  const ctx = c.getContext('2d');
+  const w = c.width, h = c.height;
+  ctx.clearRect(0,0,w,h);
+  const max = Math.max(...data), min = Math.min(...data);
+  const range = (max-min)||1;
+  ctx.beginPath();
+  data.forEach((v,i)=>{
+    const x = (i/(data.length-1))*w;
+    const y = h - ((v-min)/range)*h*0.8 - h*0.1;
+    i===0? ctx.moveTo(x,y): ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle = color; ctx.lineWidth=1.6; ctx.stroke();
+  ctx.lineTo(w,h); ctx.lineTo(0,h); ctx.closePath();
+  const grad = ctx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0, color+'55'); grad.addColorStop(1, color+'00');
+  ctx.fillStyle=grad; ctx.fill();
 }
-setInterval(updateClock, 1000);
-updateClock();
+const sensorHistory = sensors.map(s=>Array.from({length:20},()=>s.val*(0.9+Math.random()*0.2)));
+function refreshSensors(){
+  sensors.forEach((s,i)=>{
+    const drift = (Math.random()-0.5)*s.val*0.06;
+    s.val = Math.max(0, +(s.val+drift).toFixed(1));
+    document.getElementById(`sv-${i}`).innerHTML = `${s.val}<span> ${s.unit}</span>`;
+    sensorHistory[i].push(s.val); sensorHistory[i].shift();
+    const color = s.status==='ok' ? '#00E5FF' : s.status==='warn' ? '#FFC107' : '#FF6A00';
+    drawSpark(`sc-${i}`, sensorHistory[i], color);
+  });
+}
+refreshSensors();
+setInterval(refreshSensors, 2000);
 
-// LIVE SENSOR UPDATES
-function randomize(val, range) {
-  return (val + (Math.random() - 0.5) * range).toFixed(2);
+/* ===================== Zone SVG art generator ===================== */
+function zoneSVG(kind, glow){
+  const bg = `<rect width="100%" height="100%" fill="#081222"/>
+    <rect width="100%" height="100%" fill="url(#grid-${kind})"/>
+    <pattern id="grid-${kind}" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M24 0H0V24" fill="none" stroke="rgba(0,229,255,0.06)" stroke-width="1"/>
+    </pattern>`;
+  const scenes = {
+    assembly: `
+      <rect x="20" y="90" width="440" height="8" fill="#12233a"/>
+      <rect x="30" y="60" width="60" height="40" rx="3" fill="#0e1e34" stroke="${glow}" stroke-width="1.5"/>
+      <rect x="100" y="50" width="50" height="50" rx="3" fill="#0e1e34" stroke="${glow}" stroke-width="1.5"/>
+      <circle cx="220" cy="75" r="22" fill="none" stroke="${glow}" stroke-width="2"/>
+      <rect x="210" y="30" width="20" height="45" fill="#0e1e34" stroke="${glow}" stroke-width="1.5"/>
+      <rect x="270" y="55" width="70" height="35" rx="3" fill="#0e1e34" stroke="${glow}" stroke-width="1.5"/>
+      <circle cx="285" cy="94" r="6" fill="${glow}"/><circle cx="325" cy="94" r="6" fill="${glow}"/>
+      <rect x="370" y="40" width="10" height="60" fill="${glow}" opacity="0.6"/>
+      <rect x="395" y="40" width="10" height="60" fill="${glow}" opacity="0.6"/>`,
+    chemical: `
+      <rect x="40" y="40" width="45" height="65" rx="6" fill="#0e1e34" stroke="${glow}" stroke-width="1.5"/>
+      <rect x="100" y="30" width="45" height="75" rx="6" fill="#0e1e34" stroke="${glow}" stroke-width="1.5"/>
+      <rect x="160" y="45" width="45" height="60" rx="6" fill="#0e1e34" stroke="${glow}" stroke-width="1.5"/>
+      <path d="M62 40 V15 H240 V50" fill="none" stroke="${glow}" stroke-width="3"/>
+      <path d="M240 50 V90 H340" fill="none" stroke="${glow}" stroke-width="3"/>
+      <circle cx="240" cy="50" r="5" fill="${glow}"/>
+      <circle cx="300" cy="90" r="10" fill="none" stroke="${glow}" stroke-width="2"/>
+      <rect x="330" y="55" width="60" height="50" rx="4" fill="#0e1e34" stroke="${glow}" stroke-width="1.5"/>`,
+    refinery: `
+      <circle cx="70" cy="65" r="34" fill="#0e1e34" stroke="${glow}" stroke-width="2"/>
+      <circle cx="70" cy="65" r="20" fill="none" stroke="${glow}" stroke-width="1"/>
+      <rect x="140" y="20" width="14" height="85" fill="#0e1e34" stroke="${glow}" stroke-width="1.5"/>
+      <rect x="170" y="35" width="14" height="70" fill="#0e1e34" stroke="${glow}" stroke-width="1.5"/>
+      <rect x="200" y="10" width="14" height="95" fill="#0e1e34" stroke="${glow}" stroke-width="1.5"/>
+      <path d="M207 10 q10 -12 -4 -20" fill="none" stroke="rgba(220,234,251,0.35)" stroke-width="4" stroke-linecap="round"/>
+      <path d="M147 20 q8 -10 -3 -18" fill="none" stroke="rgba(220,234,251,0.25)" stroke-width="3" stroke-linecap="round"/>
+      <path d="M120 90 H400" stroke="${glow}" stroke-width="3" fill="none"/>
+      <path d="M240 90 V50 H320 V90" stroke="${glow}" stroke-width="3" fill="none"/>`,
+    lpg: `
+      <ellipse cx="90" cy="70" rx="42" ry="26" fill="#0e1e34" stroke="${glow}" stroke-width="2"/>
+      <rect x="65" y="44" width="50" height="26" fill="#0e1e34" stroke="${glow}" stroke-width="2"/>
+      <ellipse cx="200" cy="70" rx="42" ry="26" fill="#0e1e34" stroke="${glow}" stroke-width="2"/>
+      <rect x="175" y="44" width="50" height="26" fill="#0e1e34" stroke="${glow}" stroke-width="2"/>
+      <ellipse cx="310" cy="70" rx="42" ry="26" fill="#0e1e34" stroke="${glow}" stroke-width="2"/>
+      <rect x="285" y="44" width="50" height="26" fill="#0e1e34" stroke="${glow}" stroke-width="2"/>
+      <rect x="360" y="75" width="80" height="30" rx="4" fill="#0e1e34" stroke="${glow}" stroke-width="1.5"/>
+      <circle cx="375" cy="108" r="7" fill="${glow}"/><circle cx="425" cy="108" r="7" fill="${glow}"/>`,
+    warehouse: `
+      <rect x="30" y="20" width="10" height="85" fill="#0e1e34" stroke="${glow}" stroke-width="1.2"/>
+      <rect x="30" y="20" width="90" height="10" fill="#0e1e34" stroke="${glow}" stroke-width="1.2"/>
+      <rect x="30" y="50" width="90" height="10" fill="#0e1e34" stroke="${glow}" stroke-width="1.2"/>
+      <rect x="30" y="80" width="90" height="10" fill="#0e1e34" stroke="${glow}" stroke-width="1.2"/>
+      <rect x="150" y="20" width="10" height="85" fill="#0e1e34" stroke="${glow}" stroke-width="1.2"/>
+      <rect x="150" y="20" width="90" height="10" fill="#0e1e34" stroke="${glow}" stroke-width="1.2"/>
+      <rect x="150" y="50" width="90" height="10" fill="#0e1e34" stroke="${glow}" stroke-width="1.2"/>
+      <rect x="150" y="80" width="90" height="10" fill="#0e1e34" stroke="${glow}" stroke-width="1.2"/>
+      <rect x="300" y="60" width="34" height="30" rx="2" fill="${glow}" opacity="0.85"/>
+      <circle cx="308" cy="94" r="5" fill="#081222" stroke="${glow}"/><circle cx="328" cy="94" r="5" fill="#081222" stroke="${glow}"/>
+      <rect x="334" y="70" width="16" height="14" fill="${glow}" opacity="0.6"/>`,
+    power: `
+      <rect x="40" y="40" width="60" height="60" rx="4" fill="#0e1e34" stroke="${glow}" stroke-width="1.5"/>
+      <circle cx="70" cy="70" r="18" fill="none" stroke="${glow}" stroke-width="2"/>
+      <rect x="130" y="30" width="70" height="70" rx="4" fill="#0e1e34" stroke="${glow}" stroke-width="1.5"/>
+      <path d="M165 45 l-10 20 h14 l-10 20" fill="none" stroke="${glow}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="230" y="20" width="16" height="85" fill="#0e1e34" stroke="${glow}" stroke-width="1.2"/>
+      <rect x="270" y="20" width="16" height="85" fill="#0e1e34" stroke="${glow}" stroke-width="1.2"/>
+      <line x1="238" y1="30" x2="278" y2="30" stroke="${glow}" stroke-width="1"/>
+      <line x1="238" y1="50" x2="278" y2="50" stroke="${glow}" stroke-width="1"/>`
+  };
+  return `<svg viewBox="0 0 460 130" preserveAspectRatio="xMidYMid slice">${bg}${scenes[kind]}</svg>`;
 }
 
-setInterval(() => {
-  const gasEl = document.getElementById('gas-val');
-  const gas = parseFloat(randomize(1.17, 0.2));
-  gasEl.textContent = gas.toFixed(2) + '%';
-  gasEl.style.color = gas > 2 ? '#FF1744' : '#FF6A00';
+/* ===================== Zones data ===================== */
+const zones = [
+  {id:'A', name:'Zone A — Heavy Machine Assembly', desc:'CNC · Robots · Forklifts · Conveyors', kind:'assembly', status:'safe', risk:8, workers:12, machines:34, temp:'29°C', gas:'6% LEL', predict:'No anomalies projected in next 4 hrs.'},
+  {id:'B', name:'Zone B — Chemical Processing Unit', desc:'Storage Tanks · Pipelines · Valves', kind:'chemical', status:'moderate', risk:24, workers:18, machines:21, temp:'34°C', gas:'14% LEL', predict:'Pressure trending up 2% — monitor valve V-12.'},
+  {id:'C', name:'Zone C — Oil & Gas Refinery', desc:'Reactors · Steam Lines · Pipes', kind:'refinery', status:'high', risk:61, workers:9, machines:17, temp:'48°C', gas:'31% LEL', predict:'Thermal drift detected — recommend inspection within 2 hrs.'},
+  {id:'D', name:'Zone D — LPG Storage Area', desc:'Gas Cylinders · Tank Farm · Fuel Trucks', kind:'lpg', status:'critical', risk:87, workers:6, machines:8, temp:'52°C', gas:'68% LEL', predict:'Gas leak signature confirmed — evacuation protocol engaged.'},
+  {id:'E', name:'Zone E — Warehouse', desc:'Inventory · Pallets · Loading Dock', kind:'warehouse', status:'safe', risk:26, workers:14, machines:11, temp:'27°C', gas:'3% LEL', predict:'Routine operations, no risk factors flagged.'},
+  {id:'F', name:'Zone F — Power Generation Room', desc:'Generators · Transformers · Panels', kind:'power', status:'moderate', risk:21, workers:11, machines:15, temp:'33°C', gas:'—', predict:'Motor M-3 vibration slightly elevated — schedule check.'},
+];
+const statusColor = {safe:'#00FF99', moderate:'#FFC107', high:'#FF6A00', critical:'#FF1744'};
+const statusText = {safe:'SAFE', moderate:'MODERATE', high:'HIGH', critical:'CRITICAL'};
 
-  document.getElementById('temp-val').textContent = parseFloat(randomize(49.3, 1)).toFixed(1) + ' °C';
-  document.getElementById('pres-val').textContent = parseFloat(randomize(99.6, 0.5)).toFixed(1) + ' kPa';
-  document.getElementById('vib-val').textContent = parseFloat(randomize(17.3, 1.5)).toFixed(1) + ' Hz';
-  document.getElementById('co2-val').textContent = Math.round(parseFloat(randomize(481, 10))) + ' ppm';
-  document.getElementById('hum-val').textContent = Math.round(parseFloat(randomize(62, 2))) + '%';
-  document.getElementById('noise-val').textContent = Math.round(parseFloat(randomize(72, 3))) + ' dB';
-  document.getElementById('load-val').textContent = Math.round(parseFloat(randomize(68, 4))) + '%';
-  document.getElementById('workers').textContent = Math.round(125 + Math.random() * 6);
-}, 2000);
-
-// RISK CHART
-const riskCtx = document.getElementById('riskChart').getContext('2d');
-const riskLabels = ['Now', '30m', '60m', '90m', '120m'];
-const riskData = {
-  labels: riskLabels,
-  datasets: [
-    { label: 'Zone A', data: [12, 15, 18, 14, 12], borderColor: '#00FF99', backgroundColor: 'transparent', borderWidth: 2, tension: 0.4, pointBackgroundColor: '#00FF99', pointRadius: 3 },
-    { label: 'Zone B', data: [96, 91, 85, 75, 65], borderColor: '#FF1744', backgroundColor: 'rgba(255,23,68,0.08)', borderWidth: 2, tension: 0.4, pointBackgroundColor: '#FF1744', pointRadius: 3, fill: true },
-    { label: 'Zone C', data: [61, 58, 62, 55, 50], borderColor: '#FF6A00', backgroundColor: 'transparent', borderWidth: 2, tension: 0.4, pointBackgroundColor: '#FF6A00', pointRadius: 3 },
-    { label: 'Zone D', data: [34, 36, 38, 35, 32], borderColor: '#FFC107', backgroundColor: 'transparent', borderWidth: 2, tension: 0.4, pointBackgroundColor: '#FFC107', pointRadius: 3 }
-  ]
-};
-
-new Chart(riskCtx, {
-  type: 'line',
-  data: riskData,
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: true,
-        position: 'bottom',
-        labels: { color: '#6B8FA8', font: { size: 9 }, boxWidth: 10, padding: 8 }
-      }
-    },
-    scales: {
-      x: { ticks: { color: '#6B8FA8', font: { size: 9 } }, grid: { color: 'rgba(26,58,92,0.4)' } },
-      y: { min: 0, max: 100, ticks: { color: '#6B8FA8', font: { size: 9 } }, grid: { color: 'rgba(26,58,92,0.4)' } }
-    }
-  }
+const zoneGrid = document.getElementById('zoneGrid');
+zones.forEach(z=>{
+  const glow = statusColor[z.status];
+  const card = document.createElement('div');
+  card.className='glass zone-card';
+  card.onclick=()=>openModal(z);
+  card.innerHTML = `
+    <div class="zone-visual">
+      ${zoneSVG(z.kind, glow)}
+      <div class="zone-status-tag ${z.status}">${statusText[z.status]}</div>
+    </div>
+    <div class="zone-body">
+      <div class="zone-name">${z.name}</div>
+      <div class="zone-desc">${z.desc}</div>
+      <div class="zone-risk-row">
+        <span class="zone-risk-label">RISK SCORE</span>
+        <span class="zone-risk-val" style="color:${glow}">${z.risk}%</span>
+      </div>
+      <div class="zone-bar"><div class="zone-bar-fill" style="width:${z.risk}%;background:${glow};box-shadow:0 0 8px ${glow}"></div></div>
+      <div class="zone-stats">
+        <div>Workers <b>${z.workers}</b></div>
+        <div>Machines <b>${z.machines}</b></div>
+        <div>Temp <b>${z.temp}</b></div>
+        <div>Gas <b>${z.gas}</b></div>
+      </div>
+      <div class="zone-predict">🔮 AI: ${z.predict}</div>
+      <div class="zone-btn">View Live Zone →</div>
+    </div>
+  `;
+  zoneGrid.appendChild(card);
 });
 
-// WORKER DONUT
-const workerCtx = document.getElementById('workerChart').getContext('2d');
-new Chart(workerCtx, {
-  type: 'doughnut',
-  data: {
-    datasets: [{
-      data: [89, 22, 3],
-      backgroundColor: ['#00FF99', '#FFC107', '#FF1744'],
-      borderWidth: 2,
-      borderColor: '#0A1628',
-      hoverBorderWidth: 0
-    }]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    cutout: '72%',
-    plugins: { legend: { display: false }, tooltip: {
-      callbacks: {
-        label: (ctx) => {
-          const labels = ['Safe', 'Evacuating', 'No Response'];
-          return `${labels[ctx.dataIndex]}: ${ctx.parsed}`;
-        }
-      }
-    }}
-  }
+/* ===================== Modal ===================== */
+function openModal(z){
+  const glow = statusColor[z.status];
+  document.getElementById('modalHero').innerHTML = zoneSVG(z.kind, glow) + `<button class="modal-close" onclick="closeModal()">✕</button><div class="modal-title-bar"><h2>${z.name}</h2></div>`;
+  document.getElementById('modalRec').textContent = z.predict + (z.status==='critical' ? ' Immediate evacuation of non-essential personnel recommended.' : '');
+  document.getElementById('modalWorkers').textContent = `${z.workers} workers currently badge-verified inside this zone.`;
+  document.getElementById('modalEmergency').textContent = z.status==='critical' ? 'Emergency Active' : 'No Emergency';
+  document.getElementById('modalEmergency').style.color = z.status==='critical' ? 'var(--red)' : 'var(--text-dim)';
+  document.getElementById('modalEmergency').style.borderColor = z.status==='critical' ? 'var(--red)' : 'var(--border)';
+  document.getElementById('modalSensors').innerHTML = `
+    <div class="mm-item"><div class="mmlabel">TEMPERATURE</div><div class="mmval">${z.temp}</div></div>
+    <div class="mm-item"><div class="mmlabel">GAS LEVEL</div><div class="mmval">${z.gas}</div></div>
+    <div class="mm-item"><div class="mmlabel">MACHINE HEALTH</div><div class="mmval">${z.status==='critical'?'Degraded':'Nominal'}</div></div>
+    <div class="mm-item"><div class="mmlabel">RISK SCORE</div><div class="mmval" style="color:${glow}">${z.risk}%</div></div>
+  `;
+  document.getElementById('zoneModal').classList.add('open');
+}
+function closeModal(){ document.getElementById('zoneModal').classList.remove('open'); }
+document.getElementById('zoneModal').addEventListener('click', e=>{ if(e.target.id==='zoneModal') closeModal(); });
+
+/* ===================== Emergency Panel ===================== */
+const epButtons = [
+  {icon:'🔊', label:'AI Voice Announcement', msg:'Voice announcement broadcasting in English, Hindi & Kannada'},
+  {icon:'📱', label:'Emergency Alert to Workers', msg:'Alert sent to 70 workers · delivery in progress'},
+  {icon:'🚑', label:'Request Ambulance', msg:'Ambulance AMB-114 dispatched · ETA 08:24 min'},
+  {icon:'🚒', label:'Notify Fire Response Team', msg:'Fire response team notified'},
+  {icon:'📞', label:'Notify Safety Officer', msg:'Safety officer paged'},
+  {icon:'🚔', label:'Notify Security Team', msg:'Security team notified'},
+  {icon:'🔔', label:'Emergency Siren', msg:'Industrial siren activated'},
+  {icon:'⚠️', label:'Lock Dangerous Zone', msg:'Zone D access locked'},
+  {icon:'🔒', label:'Shut Down Machine', msg:'Machine shutdown sequence initiated'},
+  {icon:'🛑', label:'Emergency Shutdown', msg:'Full facility emergency shutdown triggered', crit:true},
+];
+const epGrid = document.getElementById('epGrid');
+epButtons.forEach((b,i)=>{
+  const el = document.createElement('button');
+  el.className='glass ep-btn';
+  el.innerHTML = `<div class="ep-icon">${b.icon}</div><div class="ep-label">${b.label}</div><div class="ep-status" id="eps-${i}">STANDBY</div>`;
+  el.onclick = ()=>{
+    el.classList.add('armed');
+    document.getElementById(`eps-${i}`).textContent='ACTIVE';
+    fireToast(b.msg, b.crit ? 'crit':'warn');
+    setTimeout(()=>{ el.classList.remove('armed'); document.getElementById(`eps-${i}`).textContent='STANDBY'; }, 4000);
+  };
+  epGrid.appendChild(el);
 });
 
-// Wave bars animate at different speeds
-document.querySelectorAll('.wave-bar').forEach((bar, i) => {
-  bar.style.animationDuration = (0.3 + Math.random() * 0.4).toFixed(2) + 's';
+/* ===================== Ambulance map ===================== */
+const ambMap = document.getElementById('ambMap');
+ambMap.innerHTML = `
+<svg viewBox="0 0 700 440" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style="display:block;background:#050c18;">
+  <defs>
+    <pattern id="roadgrid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M60 0H0V60" fill="none" stroke="rgba(0,229,255,0.06)" stroke-width="1"/>
+    </pattern>
+    <radialGradient id="mapglow" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="rgba(0,229,255,0.08)"/>
+      <stop offset="100%" stop-color="transparent"/>
+    </radialGradient>
+  </defs>
+  <rect width="700" height="440" fill="#050c18"/>
+  <rect width="700" height="440" fill="url(#mapglow)"/>
+  <rect width="700" height="440" fill="url(#roadgrid)"/>
+  <!-- static roads -->
+  <path d="M0 340 H700" stroke="rgba(255,255,255,0.05)" stroke-width="10"/>
+  <path d="M0 180 H700" stroke="rgba(255,255,255,0.05)" stroke-width="7"/>
+  <path d="M120 0 V440" stroke="rgba(255,255,255,0.05)" stroke-width="7"/>
+  <path d="M520 0 V440" stroke="rgba(255,255,255,0.05)" stroke-width="10"/>
+  <path d="M0 90 H700" stroke="rgba(255,255,255,0.03)" stroke-width="4"/>
+  <path d="M0 250 H700" stroke="rgba(255,255,255,0.03)" stroke-width="4"/>
+  <path d="M320 0 V440" stroke="rgba(255,255,255,0.03)" stroke-width="4"/>
+
+  <!-- blocked route A -->
+  <path d="M70 90 C 180 140, 90 260, 260 300 S 480 260, 560 340" fill="none" stroke="#FF1744" stroke-width="3" stroke-dasharray="3 7" opacity="0.5"/>
+  <!-- congested route B -->
+  <path d="M70 90 C 220 70, 300 180, 400 210 S 520 300, 560 340" fill="none" stroke="#FFC107" stroke-width="3" stroke-dasharray="3 7" opacity="0.55"/>
+
+  <!-- selected route C -->
+  <path id="routePath" d="M70 90 C 130 190, 60 250, 180 290 S 420 300, 560 340" fill="none" stroke="#00E5FF" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+
+  <!-- origin marker -->
+  <g transform="translate(70,90)">
+    <circle r="16" fill="rgba(255,23,68,0.18)"><animate attributeName="r" values="14;22;14" dur="1.6s" repeatCount="indefinite"/></circle>
+    <circle r="7" fill="#FF1744"/>
+    <text x="14" y="-10" fill="#FF6A00" font-family="JetBrains Mono" font-size="11" font-weight="700">ZONE D — LPG PLANT</text>
+  </g>
+
+  <!-- destination marker -->
+  <g transform="translate(560,340)">
+    <circle r="10" fill="#00FF99"/>
+    <text x="14" y="4" fill="#00FF99" font-family="JetBrains Mono" font-size="11" font-weight="700">CITY CARE HOSPITAL</text>
+  </g>
+
+  <!-- ambulance moving -->
+  <g>
+    <circle r="9" fill="#00E5FF" opacity="0.9">
+      <animateMotion dur="7s" repeatCount="indefinite" rotate="auto" path="M70 90 C 130 190, 60 250, 180 290 S 420 300, 560 340"/>
+    </circle>
+    <text font-size="14" text-anchor="middle" dy="5">
+      <animateMotion dur="7s" repeatCount="indefinite" path="M70 90 C 130 190, 60 250, 180 290 S 420 300, 560 340"/>
+      🚑
+    </text>
+  </g>
+</svg>`;
+
+let ambSeconds = 8*60+24;
+setInterval(()=>{
+  if(ambSeconds>0){ ambSeconds--; }
+  const m = String(Math.floor(ambSeconds/60)).padStart(2,'0');
+  const s = String(ambSeconds%60).padStart(2,'0');
+  document.getElementById('ambEta').textContent = `${m}:${s} min`;
+  const distLeft = Math.max(0.1,(ambSeconds/(8*60+24))*6.8).toFixed(1);
+  document.getElementById('ambDist').textContent = `${distLeft} km`;
+}, 1000);
+
+/* ===================== Timeline ===================== */
+const tl = [
+  {t:'10:20', title:'Gas Leak Detected', desc:'LEL sensor crossed 45% threshold in Zone D', c:'#FF6A00'},
+  {t:'10:21', title:'Temperature Rise', desc:'+6°C spike near storage tank T-4', c:'#FFC107'},
+  {t:'10:22', title:'Helmet Missing (CV Alert)', desc:'Worker #E-114 flagged by computer vision', c:'#FFC107'},
+  {t:'10:23', title:'AI Risk 96%', desc:'Compound risk engine escalates to critical', c:'#FF1744'},
+  {t:'10:24', title:'Voice Announcement', desc:'Multi-language evacuation broadcast triggered', c:'#00E5FF'},
+  {t:'10:24', title:'Workers Alerted', desc:'12 workers notified via mobile app', c:'#00E5FF'},
+  {t:'10:25', title:'Ambulance Requested', desc:'AMB-114 dispatched from City Care Hospital', c:'#FF1744'},
+  {t:'10:26', title:'Fire Team Notified', desc:'Fire response team en route to Zone D', c:'#FF6A00'},
+  {t:'10:27', title:'Workers Evacuated', desc:'Zone D cleared · assembly point confirmed safe', c:'#00FF99'},
+];
+const tlList = document.getElementById('tlList');
+tl.forEach(item=>{
+  const row = document.createElement('div');
+  row.className='tl-item';
+  row.innerHTML = `<div class="tl-time">${item.t}</div>
+    <div class="tl-dotcol"><div class="tl-dot" style="background:${item.c};color:${item.c}"></div><div class="tl-line"></div></div>
+    <div class="tl-content"><div class="tl-title">${item.title}</div><div class="tl-desc">${item.desc}</div></div>`;
+  tlList.appendChild(row);
 });
+
+/* ===================== Marquee ===================== */
+const techs = ['YOLOv11','OpenCV','TensorFlow','PyTorch','FastAPI','React','TailwindCSS','Three.js','PostgreSQL','MongoDB','Redis','LangChain','FAISS','Gemini API','RAG','Knowledge Graph','Agentic AI','Anomaly Detection'];
+const mq = document.getElementById('marquee');
+mq.innerHTML = [...techs,...techs].map(t=>`<span>◆ ${t}</span>`).join('');
+
+/* ===================== AI Assistant ===================== */
+function toggleAI(){ document.getElementById('aiPanel').classList.toggle('open'); }
+function askAI(q){
+  const body = document.getElementById('aiBody');
+  const um = document.createElement('div'); um.className='ai-msg user'; um.textContent=q; body.appendChild(um);
+  const responses = {
+    'Which machine has highest risk?': 'Reactor R-2 in Zone C shows the highest composite risk (61%) — thermal drift + rising vibration over the last 40 minutes.',
+    'Why is Zone C High Risk?': 'Zone C combines elevated temperature (48°C), gas concentration (31% LEL) and a maintenance permit overdue by 2 days — the compound risk engine weights these together.',
+    'Generate incident report': 'Draft incident report INC-2291 compiled: Zone D gas leak, 10:20–10:27, 6 workers evacuated, no injuries. Ready to export as PDF from the Reports module.'
+  };
+  const bm = document.createElement('div'); bm.className='ai-msg bot';
+  bm.textContent = responses[q] || "I'm a UI simulation in this demo — wire me to your backend AI service for live answers.";
+  setTimeout(()=>{ body.appendChild(bm); body.scrollTop = body.scrollHeight; }, 500);
+  body.scrollTop = body.scrollHeight;
+}
+setTimeout(()=>{ document.getElementById('aiPanel').classList.add('open'); }, 900);
 </script>
 </body>
 </html>
